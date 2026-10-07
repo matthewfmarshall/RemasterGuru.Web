@@ -94,6 +94,14 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-900">
           {album.title}
         </h1>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Link
+            href={`/app/albums/${albumId}/book`}
+            className="inline-flex items-center justify-center rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800"
+          >
+            Edit book
+          </Link>
+        </div>
         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
           <div>
             <dt className="text-zinc-500">Status</dt>

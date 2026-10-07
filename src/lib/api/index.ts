@@ -6,7 +6,9 @@ export { assetRestoredProxyUrl } from "./asset-restored";
 export type {
   AlbumDto,
   AlbumDetailResponse,
+  AlbumLayoutResponse,
   AssetDto,
   CreditsBalanceDto,
+  PrintReadinessResponse,
   UploadSessionResponse,
 } from "./types";

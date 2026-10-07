@@ -27,9 +27,36 @@ export type UploadSessionResponse = {
   expiresAt: string;
 };
 
+export type AlbumLayoutResponse = {
+  albumId: string;
+  templateId: string;
+  pageCount: number;
+  slotsFilled: number;
+  orderedAssetIds: string[];
+  assets: AssetDto[];
+};
+
+export type PrintReadinessWarning = {
+  assetId: string;
+  severity: string;
+  code: string;
+  message: string;
+};
+
+export type PrintReadinessResponse = {
+  templateId: string;
+  pageCount: number;
+  slotsFilled: number;
+  minLongEdgePx: number;
+  softPhotoCount: number;
+  warningCount: number;
+  warnings: PrintReadinessWarning[];
+};
+
 export type AssetDto = {
   id: string;
   albumId: string;
+  orderIndex: number;
   caption: string | null;
   thumbnailUrl?: string | null;
   original: {
