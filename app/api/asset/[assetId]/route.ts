@@ -19,6 +19,13 @@ export async function GET(
   );
 
   if (!upstream.ok) {
+    if (process.env.NODE_ENV === "development") {
+      const detail = await upstream.text().catch(() => "");
+      console.error(
+        "[RemasterGuru] Asset proxy upstream error",
+        { assetId, status: upstream.status, detail: detail.slice(0, 500) },
+      );
+    }
     return new Response(upstream.statusText || "Upstream error", {
       status: upstream.status,
     });
