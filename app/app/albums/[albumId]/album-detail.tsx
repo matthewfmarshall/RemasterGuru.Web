@@ -160,7 +160,7 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-zinc-900">Upload photo</h2>
+        <h2 className="text-lg font-semibold text-zinc-900">Upload photos</h2>
         <AlbumPhotoUpload albumId={albumId} />
       </section>
     </div>
