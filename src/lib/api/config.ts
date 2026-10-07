@@ -1,8 +1,9 @@
-const DEFAULT_API_URL = "http://localhost:5000";
+const DEFAULT_API_URL = "http://localhost:5055";
 const DEFAULT_DEV_USER_ID = "84AD0816-39F0-480F-93F9-2D370D27CA7C";
 
 export function getApiBaseUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;
+  const fromEnv = process.env.NEXT_PUBLIC_API_URL?.trim();
+  const raw = fromEnv && fromEnv.length > 0 ? fromEnv : DEFAULT_API_URL;
   return raw.replace(/\/$/, "");
 }
 

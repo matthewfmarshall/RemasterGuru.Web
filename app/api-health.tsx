@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getApiBaseUrl } from "@/src/lib/api";
 
-const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const apiUrl = getApiBaseUrl();
 
 export function ApiHealth() {
   const healthUrl = `${apiUrl}/health`;

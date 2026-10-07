@@ -3,7 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Alert, Button, Card, Input } from "@/src/components/ui";
-import { createDevApiClient, type AlbumDto } from "@/src/lib/api";
+import {
+  createDevApiClient,
+  getApiBaseUrl,
+  type AlbumDto,
+} from "@/src/lib/api";
 
 const DEFAULT_TEMPLATE = "hardcover-24";
 
@@ -38,9 +42,10 @@ export function NewAlbumForm() {
     setSubmitting(false);
 
     if (apiError || !response.ok) {
+      const apiBase = getApiBaseUrl();
       setError(
         apiError
-          ? "Could not create album. Check the API is running."
+          ? `Could not reach the API at ${apiBase}. Start RemasterGuru.Api (dotnet run) and confirm NEXT_PUBLIC_API_URL matches launchSettings (default ${apiBase}).`
           : `Could not create album (HTTP ${response.status})`,
       );
       return;

@@ -33,7 +33,7 @@ npm run generate:api   # after Api openapi changes
 
 | Variable | Description |
 |----------|-------------|
-| `NEXT_PUBLIC_API_URL` | Base URL of the API (no trailing slash) |
+| `NEXT_PUBLIC_API_URL` | Base URL of the API (no trailing slash). Default `http://localhost:5055` — matches `RemasterGuru.Api` `launchSettings.json`. On macOS, avoid `5000` (often AirPlay). |
 | `NEXT_PUBLIC_DEV_USER_ID` | GUID sent as `X-User-Id` for local API calls |
 
 Defaults in `.env.local.example`.
