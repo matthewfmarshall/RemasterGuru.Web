@@ -40,11 +40,15 @@ Defaults in `.env.local.example`.
 
 ## Run
 
+Start **RemasterGuru.Api** first (see that repo’s README), then:
+
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). The home page shows API health.
+
+If the API is not running, the app still loads: home health shows **unreachable**, and the `/app` header shows **Credits: —** until the API is up. `NEXT_PUBLIC_API_URL` must match the API base URL (default `http://localhost:5055`).
 
 ### Album app (dev)
 

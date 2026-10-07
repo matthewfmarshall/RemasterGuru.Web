@@ -20,7 +20,26 @@ export default function ApiCheckPage() {
     const client = createDevApiClient();
 
     async function load() {
-      const { data, error, response } = await client.GET("/api/v1/credits/balance");
+      let data: unknown;
+      let error: unknown;
+      let response: Response;
+      try {
+        const result = await client.GET("/api/v1/credits/balance");
+        data = result.data;
+        error = result.error;
+        response = result.response;
+      } catch (err) {
+        if (cancelled) return;
+        setStatus("error");
+        setDetail(
+          err instanceof TypeError
+            ? "API unavailable (fetch failed). Is RemasterGuru.Api running?"
+            : err instanceof Error
+              ? err.message
+              : String(err),
+        );
+        return;
+      }
       if (cancelled) return;
       if (error || !response.ok) {
         setStatus("error");

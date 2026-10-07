@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Alert, Card } from "@/src/components/ui";
 import {
+  catchNetworkFailure,
   createDevApiClient,
   type AlbumDetailResponse,
   type AssetDto,
@@ -13,10 +14,15 @@ function formatStatus(status: string): string {
 
 async function loadAlbum(albumId: string) {
   const client = createDevApiClient();
-  const { data, error, response } = await client.GET(
-    "/api/v1/albums/{albumId}",
-    { params: { path: { albumId } } },
+  const network = await catchNetworkFailure(() =>
+    client.GET("/api/v1/albums/{albumId}", {
+      params: { path: { albumId } },
+    }),
   );
+  if (!network.ok) {
+    return { kind: "error" as const, message: network.message };
+  }
+  const { data, error, response } = network.result;
   if (response.status === 404) {
     return { kind: "not_found" as const };
   }
@@ -36,10 +42,15 @@ async function loadAlbum(albumId: string) {
 
 async function loadAssets(albumId: string) {
   const client = createDevApiClient();
-  const { data, error, response } = await client.GET(
-    "/api/v1/albums/{albumId}/assets",
-    { params: { path: { albumId } } },
+  const network = await catchNetworkFailure(() =>
+    client.GET("/api/v1/albums/{albumId}/assets", {
+      params: { path: { albumId } },
+    }),
   );
+  if (!network.ok) {
+    return { ok: false as const, message: network.message };
+  }
+  const { data, error, response } = network.result;
   if (error || !response.ok) {
     return {
       ok: false as const,

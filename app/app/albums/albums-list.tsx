@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Alert, ButtonLink, Card } from "@/src/components/ui";
-import { createDevApiClient, type AlbumDto } from "@/src/lib/api";
+import {
+  catchNetworkFailure,
+  createDevApiClient,
+  type AlbumDto,
+} from "@/src/lib/api";
 
 function formatStatus(status: string): string {
   return status.replace(/_/g, " ");
@@ -10,7 +14,11 @@ async function loadAlbums(): Promise<
   { ok: true; albums: AlbumDto[] } | { ok: false; message: string }
 > {
   const client = createDevApiClient();
-  const { data, error, response } = await client.GET("/api/v1/albums");
+  const network = await catchNetworkFailure(() => client.GET("/api/v1/albums"));
+  if (!network.ok) {
+    return { ok: false, message: network.message };
+  }
+  const { data, error, response } = network.result;
   if (error || !response.ok) {
     return {
       ok: false,

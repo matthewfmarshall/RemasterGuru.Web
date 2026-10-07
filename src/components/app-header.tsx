@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  catchNetworkFailure,
   createDevApiClient,
   type CreditsBalanceDto,
 } from "@/src/lib/api";
@@ -8,7 +9,13 @@ async function loadCredits(): Promise<
   { ok: true; data: CreditsBalanceDto } | { ok: false; message: string }
 > {
   const client = createDevApiClient();
-  const { data, error, response } = await client.GET("/api/v1/credits/balance");
+  const network = await catchNetworkFailure(() =>
+    client.GET("/api/v1/credits/balance"),
+  );
+  if (!network.ok) {
+    return { ok: false, message: network.message };
+  }
+  const { data, error, response } = network.result;
   if (error || !response.ok) {
     return {
       ok: false,
