@@ -8,7 +8,7 @@ import {
   type AlbumDetailResponse,
   type AssetDto,
 } from "@/src/lib/api";
-import { assetThumbnailProxyUrl } from "@/src/lib/api/asset-thumbnail";
+import { AlbumAssetThumbnail } from "./album-asset-thumbnail";
 
 function formatStatus(status: string): string {
   return status.replace(/_/g, " ");
@@ -130,11 +130,9 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
               <li key={asset.id}>
                 <Card className="overflow-hidden p-0">
                   <div className="relative aspect-[4/3] bg-zinc-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={assetThumbnailProxyUrl(asset.id)}
+                    <AlbumAssetThumbnail
+                      assetId={asset.id}
                       alt={asset.caption ?? "Album photo"}
-                      className="h-full w-full object-cover"
                     />
                   </div>
                   <div className="space-y-1 p-4">
