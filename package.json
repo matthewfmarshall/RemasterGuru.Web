@@ -1,15 +1,17 @@
 {
-  "name": "tmp-remaster-guru-web",
+  "name": "remaster-guru-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:api": "openapi-typescript ../RemasterGuru.Api/openapi/v1.json -o src/lib/api/schema.d.ts"
   },
   "dependencies": {
     "next": "16.4.0",
+    "openapi-fetch": "^0.17.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -20,6 +22,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
