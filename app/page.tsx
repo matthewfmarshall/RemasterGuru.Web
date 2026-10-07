@@ -7,8 +7,14 @@ export default function Home() {
       <h1 className="text-3xl font-semibold tracking-tight">Remaster Guru</h1>
       <ApiHealth />
       <Link
-        href="/dev/api-check"
+        href="/app/albums"
         className="text-sm font-medium text-zinc-900 underline underline-offset-4"
+      >
+        Open albums
+      </Link>
+      <Link
+        href="/dev/api-check"
+        className="text-sm text-zinc-600 underline underline-offset-4"
       >
         Typed API check (credits balance)
       </Link>

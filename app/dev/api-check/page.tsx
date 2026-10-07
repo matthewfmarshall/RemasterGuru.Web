@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { createApiClient } from "@/src/lib/api";
+import {
+  createDevApiClient,
+  getApiBaseUrl,
+  getDevUserId,
+} from "@/src/lib/api";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
-const devUserId =
-  process.env.NEXT_PUBLIC_DEV_USER_ID ??
-  "00000000-0000-4000-8000-000000000001";
+const apiUrl = getApiBaseUrl();
+const devUserId = getDevUserId();
 
 export default function ApiCheckPage() {
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
@@ -15,7 +17,7 @@ export default function ApiCheckPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const client = createApiClient(apiUrl, { "X-User-Id": devUserId });
+    const client = createDevApiClient();
 
     async function load() {
       const { data, error, response } = await client.GET("/api/v1/credits/balance");
