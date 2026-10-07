@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Alert, Card } from "@/src/components/ui";
+import { AlbumPhotoUpload } from "./album-photo-upload";
 import {
   catchNetworkFailure,
   createDevApiClient,
   type AlbumDetailResponse,
   type AssetDto,
 } from "@/src/lib/api";
+import { assetThumbnailProxyUrl } from "@/src/lib/api/asset-thumbnail";
 
 function formatStatus(status: string): string {
   return status.replace(/_/g, " ");
@@ -118,28 +120,40 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
         ) : assetsResult.assets.length === 0 ? (
           <Card>
             <p className="text-sm text-zinc-600">
-              No photos in this album yet. Upload will be wired here next.
+              No photos in this album yet. Use the uploader below to add your
+              first image.
             </p>
           </Card>
         ) : (
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {assetsResult.assets.map((asset) => (
               <li key={asset.id}>
-                <Card className="space-y-2">
-                  <p className="font-mono text-xs text-zinc-500">{asset.id}</p>
-                  {asset.caption ? (
-                    <p className="text-sm text-zinc-800">{asset.caption}</p>
-                  ) : (
-                    <p className="text-sm text-zinc-500">No caption</p>
-                  )}
-                  {asset.original?.contentType ? (
-                    <p className="text-xs text-zinc-500">
-                      {asset.original.contentType}
-                      {asset.original.width && asset.original.height
-                        ? ` · ${asset.original.width}×${asset.original.height}`
-                        : null}
-                    </p>
-                  ) : null}
+                <Card className="overflow-hidden p-0">
+                  <div className="relative aspect-[4/3] bg-zinc-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={assetThumbnailProxyUrl(asset.id)}
+                      alt={asset.caption ?? "Album photo"}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="space-y-1 p-4">
+                    {asset.caption ? (
+                      <p className="text-sm font-medium text-zinc-900">
+                        {asset.caption}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-zinc-500">No caption</p>
+                    )}
+                    {asset.original?.contentType ? (
+                      <p className="text-xs text-zinc-500">
+                        {asset.original.contentType}
+                        {asset.original.width && asset.original.height
+                          ? ` · ${asset.original.width}×${asset.original.height}`
+                          : null}
+                      </p>
+                    ) : null}
+                  </div>
                 </Card>
               </li>
             ))}
@@ -149,15 +163,7 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-zinc-900">Upload photo</h2>
-        <Card className="border-dashed bg-zinc-50/80">
-          <p className="text-sm text-zinc-600">
-            Upload sessions and direct file pick will connect to{" "}
-            <code className="rounded bg-white px-1 text-xs">
-              POST /api/v1/assets/upload-sessions
-            </code>{" "}
-            in a follow-up. For now, use the API or dev tools to add assets.
-          </p>
-        </Card>
+        <AlbumPhotoUpload albumId={albumId} />
       </section>
     </div>
   );

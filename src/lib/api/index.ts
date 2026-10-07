@@ -6,4 +6,5 @@ export type {
   AlbumDetailResponse,
   AssetDto,
   CreditsBalanceDto,
+  UploadSessionResponse,
 } from "./types";

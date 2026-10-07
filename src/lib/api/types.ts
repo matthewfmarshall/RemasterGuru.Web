@@ -20,10 +20,18 @@ export type AssetVersionDto = {
   createdAt: string;
 };
 
+export type UploadSessionResponse = {
+  sessionId: string;
+  uploadUrl: string;
+  assetId: string;
+  expiresAt: string;
+};
+
 export type AssetDto = {
   id: string;
   albumId: string;
   caption: string | null;
+  thumbnailUrl?: string | null;
   original: {
     storageKey: string;
     width: number | null;
