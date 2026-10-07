@@ -9,6 +9,7 @@ import {
   type AssetDto,
 } from "@/src/lib/api";
 import { AlbumAssetThumbnail } from "./album-asset-thumbnail";
+import { AlbumAssetRemaster } from "./album-asset-remaster";
 
 function formatStatus(status: string): string {
   return status.replace(/_/g, " ");
@@ -152,6 +153,7 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
                       </p>
                     ) : null}
                   </div>
+                  <AlbumAssetRemaster asset={asset} />
                 </Card>
               </li>
             ))}
