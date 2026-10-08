@@ -19,6 +19,8 @@ type BeforeAfterCompareProps = {
   /** Overrides default max width on the compare track (e.g. `max-w-none` in a grid). */
   trackClassName?: string;
   showDragHint?: boolean;
+  beforeLabel?: string;
+  afterLabel?: string;
 };
 
 const LABEL_HIDE_THRESHOLD = 2;
@@ -77,6 +79,8 @@ export function BeforeAfterCompare({
   className = "",
   trackClassName = "",
   showDragHint = true,
+  beforeLabel = "Original",
+  afterLabel = "Restored",
 }: BeforeAfterCompareProps) {
   const [position, setPosition] = useState(50);
   const [usePlaceholders, setUsePlaceholders] = useState(false);
@@ -127,7 +131,7 @@ export function BeforeAfterCompare({
 
   const showImages = !usePlaceholders;
   const hideOriginalLabel = position <= LABEL_HIDE_THRESHOLD;
-  const hideRestoredLabel = position >= 100 - LABEL_HIDE_THRESHOLD;
+  const hideAfterLabel = position >= 100 - LABEL_HIDE_THRESHOLD;
 
   return (
     <div className={className}>
@@ -156,8 +160,8 @@ export function BeforeAfterCompare({
           ) : (
             <PlaceholderPanel
               variant="after"
-              label="Restored"
-              showLabel={!hideRestoredLabel}
+              label={afterLabel}
+              showLabel={!hideAfterLabel}
             />
           )}
         </div>
@@ -179,7 +183,7 @@ export function BeforeAfterCompare({
           ) : (
             <PlaceholderPanel
               variant="before"
-              label="Original"
+              label={beforeLabel}
               showLabel={!hideOriginalLabel}
             />
           )}
@@ -215,12 +219,12 @@ export function BeforeAfterCompare({
 
         {!hideOriginalLabel && (
           <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-stone-900/70 px-2 py-1 text-xs font-medium text-white">
-            Original
+            {beforeLabel}
           </div>
         )}
-        {!hideRestoredLabel && (
+        {!hideAfterLabel && (
           <div className="pointer-events-none absolute bottom-3 right-3 rounded-md bg-amber-800/80 px-2 py-1 text-xs font-medium text-white">
-            Restored
+            {afterLabel}
           </div>
         )}
       </div>

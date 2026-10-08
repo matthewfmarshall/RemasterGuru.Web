@@ -33,6 +33,9 @@ export function RestorationLevelsSection() {
               afterSrc={slider.afterSrc}
               beforeAlt={COUPLE_PARK_ORIGINAL_ALT}
               afterAlt={slider.afterAlt}
+              afterLabel={
+                slider.id === "remaster" ? "Remastered" : "Touch-up"
+              }
             />
             <p className="mt-3 text-center text-sm font-semibold text-stone-900">
               {slider.label}
