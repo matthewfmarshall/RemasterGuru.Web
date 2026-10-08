@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Alert, Button, Card } from "@/src/components/ui";
 import { createDevApiClient } from "@/src/lib/api";
 import type { CheckoutProductDto } from "@/src/lib/api/types";
+import { CHECKOUT_PRODUCT_FALLBACKS } from "@/src/lib/marketing/pricing";
 
 type AlbumCheckoutCtaProps = {
   albumId: string;
@@ -89,25 +90,8 @@ export function AlbumCheckoutCta({
       </div>
       {error ? <Alert variant="error">{error}</Alert> : null}
       <div className="grid gap-3 sm:grid-cols-2">
-        {(products.length > 0
-          ? products
-          : [
-              {
-                sku: "book-restore-bundle",
-                name: "24-page hardcover + 8 remasters",
-                description: "",
-                amountCents: 8900,
-                includedRemasterCredits: 8,
-              },
-              {
-                sku: "book-album-only",
-                name: "24-page hardcover (album only)",
-                description: "",
-                amountCents: 5900,
-                includedRemasterCredits: 0,
-              },
-            ]
-        ).map((product) => (
+        {(products.length > 0 ? products : [...CHECKOUT_PRODUCT_FALLBACKS]).map(
+          (product) => (
           <div
             key={product.sku}
             className="flex flex-col gap-2 rounded-lg border border-zinc-200 p-4"
@@ -131,7 +115,8 @@ export function AlbumCheckoutCta({
               {loadingSku === product.sku ? "Redirecting…" : "Checkout"}
             </Button>
           </div>
-        ))}
+        ),
+        )}
       </div>
     </Card>
   );

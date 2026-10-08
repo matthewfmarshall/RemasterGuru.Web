@@ -2,6 +2,11 @@ import Link from "next/link";
 import { BeforeAfterCompare } from "@/src/components/marketing/before-after-compare";
 import { MarketingFaq } from "@/src/components/marketing/marketing-faq";
 import { MarketingHeader } from "@/src/components/marketing/marketing-header";
+import {
+  BOOK_PAGE_COUNT,
+  formatMarketingPrice,
+  MARKETING_PRODUCTS,
+} from "@/src/lib/marketing/pricing";
 
 const steps = [
   {
@@ -67,9 +72,9 @@ export default function MarketingHome() {
                 Restore the photos that matter. Print the story.
               </h1>
               <p className="mt-5 text-lg leading-relaxed text-stone-700">
-                From shoebox to hardcover: upload old prints and scans, repair
-                damage when you need it, caption the people you love, and order a
-                book you will actually hand to your kids.
+                Upload old prints and scans. Repair damage and fading when you
+                need it — or build a captioned album from photos you already
+                love. We print and ship.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link
@@ -86,8 +91,8 @@ export default function MarketingHome() {
                 </a>
               </div>
               <p className="mt-6 text-sm text-stone-600">
-                Originals always kept · You approve every restore · Free to upload
-                and layout
+                Originals always kept · You approve every restore · Printed in the
+                USA · US shipping only for now
               </p>
             </div>
             <BeforeAfterCompare className="mx-auto w-full max-w-md lg:max-w-none" />
@@ -202,8 +207,10 @@ export default function MarketingHome() {
                 Made to sit on a coffee table
               </h2>
               <ul className="mt-6 space-y-3 text-stone-700">
-                <li>Hardcover lay-flat option when your lab supports it</li>
-                <li>Paper chosen for family albums that last</li>
+                <li>
+                  {BOOK_PAGE_COUNT}-page US hardcover, built for the coffee table
+                </li>
+                <li>Archival-minded paper (final spec from our print sample)</li>
                 <li>Every spread previewed before checkout</li>
                 <li>
                   Print-safe hints when a photo may look soft at the size you
@@ -211,7 +218,8 @@ export default function MarketingHome() {
                 </li>
               </ul>
               <p className="mt-6 text-sm text-stone-600">
-                Books fulfilled by professional print partners.
+                Books fulfilled by professional print partners (including RPI for
+                v1). Packaging may show partner branding.
               </p>
             </div>
             <div
@@ -250,19 +258,25 @@ export default function MarketingHome() {
               Simple bundles
             </h2>
             <p className="mt-2 text-center text-sm text-stone-600">
-              Placeholder pricing — final numbers TBD at launch.
+              {BOOK_PAGE_COUNT}-page hardcover · US addresses only at checkout
             </p>
             <div className="mt-10 grid gap-6 md:grid-cols-2 md:gap-8">
               <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/40 p-6 shadow-sm">
                 <p className="text-sm font-semibold uppercase tracking-wide text-amber-900">
-                  Restore bundle
+                  {MARKETING_PRODUCTS.restoreBundle.displayName}
                 </p>
                 <p className="mt-2 font-serif text-4xl font-semibold text-stone-900">
-                  ~$89
+                  {formatMarketingPrice(MARKETING_PRODUCTS.restoreBundle.priceUsd)}
                 </p>
                 <ul className="mt-4 space-y-2 text-sm text-stone-700">
-                  <li>24-page hardcover, shipped</li>
-                  <li>Photo restorations included in bundle</li>
+                  <li>
+                    {BOOK_PAGE_COUNT}-page hardcover, shipped within the US
+                  </li>
+                  <li>
+                    Up to{" "}
+                    {MARKETING_PRODUCTS.restoreBundle.includedPhotoRestorations}{" "}
+                    photo restorations included
+                  </li>
                   <li>Same album and caption tools</li>
                 </ul>
                 <Link
@@ -274,14 +288,14 @@ export default function MarketingHome() {
               </div>
               <div className="rounded-2xl border border-stone-200 bg-stone-50 p-6">
                 <p className="text-sm font-semibold uppercase tracking-wide text-stone-600">
-                  Album only
+                  {MARKETING_PRODUCTS.albumOnly.displayName}
                 </p>
                 <p className="mt-2 font-serif text-4xl font-semibold text-stone-900">
-                  ~$59
+                  {formatMarketingPrice(MARKETING_PRODUCTS.albumOnly.priceUsd)}
                 </p>
                 <ul className="mt-4 space-y-2 text-sm text-stone-700">
-                  <li>Same hardcover book specs</li>
-                  <li>No restoration included</li>
+                  <li>Same {BOOK_PAGE_COUNT}-page hardcover specs</li>
+                  <li>No photo restorations included</li>
                   <li>Your photos, your captions</li>
                 </ul>
                 <Link
@@ -294,8 +308,8 @@ export default function MarketingHome() {
             </div>
             <p className="mt-8 text-center text-xs text-stone-600">
               Restoration uses professional repair technology; results vary by
-              damage. You choose the version you want before printing. Shipping
-              calculated at checkout.
+              damage. You choose the version you want before printing. US
+              shipping only for now; tax and shipping calculated at checkout.
             </p>
           </div>
         </section>
@@ -317,11 +331,11 @@ export default function MarketingHome() {
         <section className="border-t border-stone-200 bg-gradient-to-b from-amber-50/50 to-stone-100 py-16">
           <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
             <h2 className="font-serif text-2xl font-semibold text-stone-900 sm:text-3xl">
-              Ready to turn the shoebox into a book?
+              Ready to rescue the album?
             </h2>
             <p className="mt-3 text-stone-700">
-              Upload free, restore when you need it, and print when it feels
-              right.
+              Upload in minutes. Pay only when you print — or when you buy a
+              restore bundle.
             </p>
             <Link
               href="/app/albums"
@@ -334,12 +348,18 @@ export default function MarketingHome() {
       </main>
 
       <footer className="border-t border-stone-200 bg-stone-100 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-sm text-stone-600 sm:flex-row sm:px-6">
-          <p>© 2026 Remaster Guru</p>
-          <div className="flex gap-6">
-            <span className="text-stone-500">Privacy (coming soon)</span>
-            <span className="text-stone-500">Terms (coming soon)</span>
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-4 text-sm text-stone-600 sm:flex-row">
+            <p>© 2026 Remaster Guru</p>
+            <div className="flex gap-6">
+              <span className="text-stone-500">Privacy (coming soon)</span>
+              <span className="text-stone-500">Terms (coming soon)</span>
+            </div>
           </div>
+          <p className="mt-4 text-center text-xs text-stone-500 sm:text-left">
+            Repair processing uses industry-leading image technology. Books print
+            through professional partners.
+          </p>
         </div>
       </footer>
     </div>

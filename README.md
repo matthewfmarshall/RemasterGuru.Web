@@ -48,6 +48,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). The home page is the public marketing site (no API required).
 
+### Marketing pricing
+
+Landing prices and checkout product SKUs live in `src/lib/marketing/pricing.ts`. When you change book bundle prices or included restoration counts on **RemasterGuru.Api** (`Checkout/CheckoutProductCatalog.cs`), update that file too so the home page and checkout fallbacks stay aligned with `GET /api/v1/checkout/products`.
+
 ### Marketing images
 
 Optional before/after samples for the landing slider live in `public/marketing/` (`before.jpg`, `after.jpg`). See `public/marketing/README.md`. Until you add them, the slider uses demo placeholders.

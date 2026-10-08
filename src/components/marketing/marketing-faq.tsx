@@ -37,7 +37,13 @@ const items = [
     id: "print",
     question: "Will it look good printed?",
     answer:
-      "We preview every spread before checkout and warn you if a photo may look soft at the size you chose. Hardcover books use professional print partners and paper suited for family albums.",
+      "We preview every spread before checkout and warn you if a photo may look soft at the size you chose. Restored files are prepared with print in mind; final color depends on paper and ink.",
+  },
+  {
+    id: "shipping",
+    question: "How long does shipping take?",
+    answer:
+      "We ship to US addresses only for now. Production and delivery times depend on your book and are shown at checkout. Print partner production timelines are being confirmed after our sample order.",
   },
 ];
 
