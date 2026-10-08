@@ -53,6 +53,8 @@ export type PrintReadinessResponse = {
   warnings: PrintReadinessWarning[];
 };
 
+export type AssetDisplayVersion = "original" | "restored";
+
 export type AssetDto = {
   id: string;
   albumId: string;
@@ -66,7 +68,20 @@ export type AssetDto = {
     contentType: string | null;
   } | null;
   activeVersionId: string | null;
+  displayVersion: AssetDisplayVersion;
   versions: AssetVersionDto[];
+};
+
+export type RemasterJobDto = {
+  id: string;
+  assetId: string;
+  status: string;
+  preset: string;
+  creditCharged: boolean;
+  resultVersionId: string | null;
+  error: string | null;
+  createdAt: string;
+  completedAt: string | null;
 };
 
 export type CreditsBalanceDto = {

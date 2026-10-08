@@ -140,7 +140,7 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
                 <Card className="overflow-hidden p-0">
                   <div className="relative aspect-[4/3] bg-zinc-100">
                     <AlbumAssetThumbnail
-                      assetId={asset.id}
+                      asset={asset}
                       alt={asset.caption ?? "Album photo"}
                     />
                   </div>

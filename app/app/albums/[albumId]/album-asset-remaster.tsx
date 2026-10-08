@@ -8,28 +8,16 @@ import {
   assetRestoredProxyUrl,
   assetThumbnailProxyUrl,
   createDevApiClient,
+  type AssetDisplayVersion,
   type AssetDto,
   type CreditsBalanceDto,
+  type RemasterJobDto,
 } from "@/src/lib/api";
+import { assetHasRestoredVersion } from "@/src/lib/api/asset-display-image";
+import { readApiProblemMessage } from "@/src/lib/api/problem-detail";
 
 type RemasterPreset = "damage" | "fade" | "conservative";
 type TargetResolution = "1k" | "2k";
-
-type RemasterJobDto = {
-  id: string;
-  assetId: string;
-  status: string;
-  preset: string;
-  creditCharged: boolean;
-  resultVersionId: string | null;
-  error: string | null;
-  createdAt: string;
-  completedAt: string | null;
-};
-
-function hasRestoredVersion(asset: AssetDto): boolean {
-  return asset.versions.some((v) => v.kind === "restored");
-}
 
 function statusLabel(status: string): string {
   switch (status) {
@@ -46,6 +34,18 @@ function statusLabel(status: string): string {
   }
 }
 
+function formatJobWhen(iso: string): string {
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return iso;
+  }
+}
+
+function isInFlight(status: string): boolean {
+  return status === "queued" || status === "running";
+}
+
 export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
   const router = useRouter();
   const [panelOpen, setPanelOpen] = useState(false);
@@ -55,14 +55,25 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
   const [credits, setCredits] = useState<CreditsBalanceDto | null>(null);
   const [creditsError, setCreditsError] = useState<string | null>(null);
   const [job, setJob] = useState<RemasterJobDto | null>(null);
+  const [jobHistory, setJobHistory] = useState<RemasterJobDto[]>([]);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [displayVersion, setDisplayVersion] = useState<AssetDisplayVersion>(
+    asset.displayVersion ?? "original",
+  );
+  const [displayBusy, setDisplayBusy] = useState(false);
+  const [displayError, setDisplayError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [compareMode, setCompareMode] = useState<"split" | "original" | "restored">(
     "split",
   );
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const restoredAvailable = useMemo(() => hasRestoredVersion(asset), [asset]);
+  const restoredAvailable = useMemo(() => assetHasRestoredVersion(asset), [asset]);
+
+  useEffect(() => {
+    setDisplayVersion(asset.displayVersion ?? "original");
+  }, [asset.displayVersion, asset.id]);
 
   const loadCredits = useCallback(async () => {
     setCreditsError(null);
@@ -75,11 +86,35 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
     setCredits(result.data as unknown as CreditsBalanceDto);
   }, []);
 
+  const loadJobHistory = useCallback(async () => {
+    setHistoryError(null);
+    const client = createDevApiClient();
+    const result = await client.GET("/api/v1/assets/{assetId}/remaster-jobs", {
+      params: { path: { assetId: asset.id } },
+    });
+    if (result.error || !result.response.ok) {
+      setHistoryError(
+        await readApiProblemMessage(
+          result.response,
+          "Could not load remaster history.",
+        ),
+      );
+      return;
+    }
+    const list = (result.data ?? []) as unknown as RemasterJobDto[];
+    setJobHistory(list);
+    const latest = list[0] ?? null;
+    if (latest) {
+      setJob((current) => current ?? latest);
+    }
+  }, [asset.id]);
+
   useEffect(() => {
     if (panelOpen) {
       void loadCredits();
+      void loadJobHistory();
     }
-  }, [panelOpen, loadCredits]);
+  }, [panelOpen, loadCredits, loadJobHistory]);
 
   useEffect(() => {
     return () => {
@@ -104,7 +139,12 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
           params: { path: { jobId } },
         });
         if (result.error || !result.response.ok) {
-          setSubmitError("Lost connection while checking remaster status.");
+          setSubmitError(
+            await readApiProblemMessage(
+              result.response,
+              "Lost connection while checking remaster status.",
+            ),
+          );
           stopPolling();
           setBusy(false);
           return;
@@ -112,6 +152,13 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
 
         const dto = result.data as unknown as RemasterJobDto;
         setJob(dto);
+        setJobHistory((prev) => {
+          const without = prev.filter((j) => j.id !== dto.id);
+          return [dto, ...without].sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          );
+        });
 
         if (dto.status === "succeeded" || dto.status === "failed") {
           stopPolling();
@@ -125,6 +172,17 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
     [router],
   );
 
+  useEffect(() => {
+    if (!panelOpen) {
+      return;
+    }
+    const latest = jobHistory[0];
+    if (latest && isInFlight(latest.status) && !pollRef.current) {
+      setBusy(true);
+      pollJob(latest.id);
+    }
+  }, [panelOpen, jobHistory, pollJob]);
+
   async function grantDevCredits() {
     setCreditsError(null);
     const client = createDevApiClient();
@@ -135,7 +193,10 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
       setCreditsError(
         result.response.status === 403
           ? "Dev credit grants are only available when the API runs in Development."
-          : `Could not grant credits (HTTP ${result.response.status}).`,
+          : await readApiProblemMessage(
+              result.response,
+              `Could not grant credits (HTTP ${result.response.status}).`,
+            ),
       );
       return;
     }
@@ -157,16 +218,24 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
     });
 
     if (result.response.status === 402) {
-      setSubmitError("Insufficient credits for this remaster.");
+      setSubmitError(
+        await readApiProblemMessage(
+          result.response,
+          "Insufficient credits for this remaster.",
+        ),
+      );
       setBusy(false);
       return;
     }
 
     if (result.error || !result.response.ok) {
       setSubmitError(
-        result.error
-          ? "Could not start remaster."
-          : `Remaster failed (HTTP ${result.response.status}).`,
+        await readApiProblemMessage(
+          result.response,
+          result.error
+            ? "Could not start remaster."
+            : `Remaster failed (HTTP ${result.response.status}).`,
+        ),
       );
       setBusy(false);
       return;
@@ -174,8 +243,35 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
 
     const dto = result.data as unknown as RemasterJobDto;
     setJob(dto);
+    setJobHistory((prev) => [dto, ...prev]);
     void loadCredits();
     pollJob(dto.id);
+  }
+
+  async function setAlbumDisplayVersion(next: AssetDisplayVersion) {
+    if (next === displayVersion) {
+      return;
+    }
+    setDisplayError(null);
+    setDisplayBusy(true);
+    const client = createDevApiClient();
+    const result = await client.PATCH("/api/v1/assets/{assetId}", {
+      params: { path: { assetId: asset.id } },
+      body: { displayVersion: next },
+    });
+    setDisplayBusy(false);
+    if (result.error || !result.response.ok) {
+      setDisplayError(
+        await readApiProblemMessage(
+          result.response,
+          "Could not update display version.",
+        ),
+      );
+      return;
+    }
+    const updated = result.data as unknown as AssetDto;
+    setDisplayVersion(updated.displayVersion ?? next);
+    router.refresh();
   }
 
   const creditHint = credits
@@ -200,10 +296,33 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
         ) : null}
       </div>
 
+      {restoredAvailable ? (
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-medium text-zinc-600">Album display:</span>
+          {(["original", "restored"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              disabled={displayBusy || (mode === "restored" && !restoredAvailable)}
+              className={`rounded px-2 py-1 capitalize ${
+                displayVersion === mode
+                  ? "bg-zinc-900 text-white"
+                  : "bg-zinc-200 text-zinc-800"
+              } disabled:opacity-50`}
+              onClick={() => void setAlbumDisplayVersion(mode)}
+            >
+              {mode}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {displayError ? <Alert variant="error">{displayError}</Alert> : null}
+
       {panelOpen ? (
         <div className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
           {submitError ? <Alert variant="error">{submitError}</Alert> : null}
           {creditsError ? <Alert variant="error">{creditsError}</Alert> : null}
+          {historyError ? <Alert variant="error">{historyError}</Alert> : null}
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1 text-sm">
@@ -252,16 +371,41 @@ export function AlbumAssetRemaster({ asset }: { asset: AssetDto }) {
             onClick={() => void startRemaster()}
             disabled={busy}
           >
-            {busy ? "Working…" : "Start remaster"}
+            {busy ? "Working…" : job ? "Try again" : "Start remaster"}
           </Button>
 
           {job ? (
-            <p className="text-sm text-zinc-700">
-              Job {statusLabel(job.status)}
+            <div className="text-sm text-zinc-700">
+              <p>
+                Latest job: {statusLabel(job.status)}
+                {job.creditCharged ? " · 1 credit" : " · free taste"}
+              </p>
               {job.error ? (
-                <span className="mt-1 block text-red-700">{job.error}</span>
+                <p className="mt-1 text-red-700">{job.error}</p>
               ) : null}
-            </p>
+            </div>
+          ) : null}
+
+          {jobHistory.length > 0 ? (
+            <div className="space-y-1 border-t border-zinc-200 pt-2">
+              <p className="text-xs font-medium text-zinc-600">Job history</p>
+              <ul className="max-h-32 space-y-1 overflow-y-auto text-xs text-zinc-600">
+                {jobHistory.map((entry) => (
+                  <li key={entry.id} className="rounded bg-white px-2 py-1">
+                    <span className="font-medium text-zinc-800">
+                      {statusLabel(entry.status)}
+                    </span>
+                    {" · "}
+                    {entry.preset} · {formatJobWhen(entry.createdAt)}
+                    {entry.error ? (
+                      <span className="mt-0.5 block text-red-700">
+                        {entry.error}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : null}
         </div>
       ) : null}

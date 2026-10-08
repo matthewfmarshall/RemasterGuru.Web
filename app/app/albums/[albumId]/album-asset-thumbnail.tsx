@@ -1,17 +1,18 @@
 "use client";
 
-import { assetThumbnailProxyUrl } from "@/src/lib/api/asset-thumbnail";
+import { assetDisplayImageUrl } from "@/src/lib/api/asset-display-image";
+import type { AssetDto } from "@/src/lib/api/types";
 
 type AlbumAssetThumbnailProps = {
-  assetId: string;
+  asset: AssetDto;
   alt: string;
 };
 
-export function AlbumAssetThumbnail({ assetId, alt }: AlbumAssetThumbnailProps) {
+export function AlbumAssetThumbnail({ asset, alt }: AlbumAssetThumbnailProps) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={assetThumbnailProxyUrl(assetId)}
+      src={assetDisplayImageUrl(asset)}
       alt={alt}
       className="h-full w-full object-cover"
       onError={(e) => {
@@ -19,7 +20,7 @@ export function AlbumAssetThumbnail({ assetId, alt }: AlbumAssetThumbnailProps) 
         const img = e.currentTarget;
         console.error(
           "[RemasterGuru] Thumbnail failed to load",
-          { assetId, src: img.src },
+          { assetId: asset.id, src: img.src },
         );
       }}
     />

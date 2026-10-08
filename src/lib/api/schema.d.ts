@@ -884,6 +884,8 @@ export interface components {
         };
         PatchAssetRequest: {
             caption?: string | null;
+            /** @description Album grid and book preview: original or restored */
+            displayVersion?: string | null;
         };
         RegisterAssetRequest: {
             /** Format: uuid */

@@ -7,8 +7,10 @@ export type {
   AlbumDto,
   AlbumDetailResponse,
   AlbumLayoutResponse,
+  AssetDisplayVersion,
   AssetDto,
   CreditsBalanceDto,
   PrintReadinessResponse,
+  RemasterJobDto,
   UploadSessionResponse,
 } from "./types";
