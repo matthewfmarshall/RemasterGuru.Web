@@ -71,3 +71,15 @@ For a typed client demo, open [http://localhost:3000/dev/api-check](http://local
 ```bash
 npm run build
 ```
+
+## PWA (lite)
+
+The app ships a web manifest and home-screen install hints on `/app` routes (no service worker yet — API calls stay uncached).
+
+| Asset | Purpose |
+|-------|---------|
+| `public/manifest.webmanifest` | App name, `theme_color` (`#92400e` amber-800), `background_color` (`#fafaf9` stone-50), start URL `/app/albums` |
+| `public/icons/icon-192.png`, `icon-512.png` | Manifest and Apple touch icons (simple stone/amber placeholder art) |
+| `public/icons/icon.svg` | Source artwork if you regenerate PNGs |
+
+Root `app/layout.tsx` links the manifest and sets `apple-mobile-web-app-capable` via Next metadata. The install banner on `/app` can be dismissed (stored in `localStorage`); it appears after the first visit to `/app` or after creating an album. On iOS, use **Share → Add to Home Screen**.

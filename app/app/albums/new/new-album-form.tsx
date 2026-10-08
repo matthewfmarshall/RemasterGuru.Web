@@ -8,6 +8,7 @@ import {
   getApiBaseUrl,
   type AlbumDto,
 } from "@/src/lib/api";
+import { markAlbumSaved } from "@/src/lib/pwa/storage";
 
 const DEFAULT_TEMPLATE = "hardcover-24";
 
@@ -58,6 +59,7 @@ export function NewAlbumForm() {
       return;
     }
 
+    markAlbumSaved();
     router.push(`/app/albums/${id}`);
     router.refresh();
   }

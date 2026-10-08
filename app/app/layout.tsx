@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { AppHeader } from "@/src/components/app-header";
+import { InstallPrompt } from "@/src/components/pwa/install-prompt";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <AppHeader />
       </Suspense>
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">{children}</div>
+      <InstallPrompt />
     </div>
   );
 }
