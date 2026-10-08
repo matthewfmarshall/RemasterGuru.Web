@@ -4,6 +4,78 @@
  */
 
 export interface paths {
+    "/api/v1/webhooks/rpi": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RpiWebhookPayload"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/{orderId}/submit-to-lab": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    orderId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -877,6 +949,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/webhooks/stripe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/checkout/sessions": {
         parameters: {
             query?: never;
@@ -914,52 +1019,19 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/webhooks/stripe": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        CreateAlbumRequest: {
+            title?: string | null;
+            templateId?: string | null;
+        };
         CreateCheckoutSessionRequest: {
             /** Format: uuid */
             albumId?: string;
             productSku?: string | null;
             shippingCountry?: string | null;
-        };
-        CreateAlbumRequest: {
-            title?: string | null;
-            templateId?: string | null;
         };
         CreateOrderRequest: {
             sku?: string | null;
@@ -993,13 +1065,17 @@ export interface components {
         };
         PatchAssetRequest: {
             caption?: string | null;
-            /** @description Album grid and book preview: original or restored */
             displayVersion?: string | null;
         };
         RegisterAssetRequest: {
             /** Format: uuid */
             sessionId?: string;
             caption?: string | null;
+        };
+        RpiWebhookPayload: {
+            labOrderId?: string | null;
+            status?: string | null;
+            trackingUrl?: string | null;
         };
         ShippingAddressDto: {
             name?: string | null;
