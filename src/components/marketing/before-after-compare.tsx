@@ -18,12 +18,16 @@ type BeforeAfterCompareProps = {
   className?: string;
 };
 
+const LABEL_HIDE_THRESHOLD = 2;
+
 function PlaceholderPanel({
   variant,
   label,
+  showLabel = true,
 }: {
   variant: "before" | "after";
   label: string;
+  showLabel?: boolean;
 }) {
   const isBefore = variant === "before";
   return (
@@ -33,15 +37,17 @@ function PlaceholderPanel({
           ? "bg-gradient-to-br from-stone-300 via-stone-200 to-amber-100"
           : "bg-gradient-to-br from-amber-50 via-stone-100 to-stone-200"
       }`}
-      aria-hidden={!label}
+      aria-hidden={!showLabel}
     >
-      <span
-        className={`text-xs font-semibold uppercase tracking-widest ${
-          isBefore ? "text-stone-600" : "text-amber-800/80"
-        }`}
-      >
-        {label}
-      </span>
+      {showLabel && (
+        <span
+          className={`text-xs font-semibold uppercase tracking-widest ${
+            isBefore ? "text-stone-600" : "text-amber-800/80"
+          }`}
+        >
+          {label}
+        </span>
+      )}
       <span className="mt-2 max-w-[12rem] text-center text-sm text-stone-600/90">
         {isBefore
           ? "Demo — swap in your family scan"
@@ -115,6 +121,8 @@ export function BeforeAfterCompare({
   };
 
   const showImages = !usePlaceholders;
+  const hideOriginalLabel = position <= LABEL_HIDE_THRESHOLD;
+  const hideRestoredLabel = position >= 100 - LABEL_HIDE_THRESHOLD;
 
   return (
     <div className={className}>
@@ -141,7 +149,11 @@ export function BeforeAfterCompare({
               priority
             />
           ) : (
-            <PlaceholderPanel variant="after" label="Restored" />
+            <PlaceholderPanel
+              variant="after"
+              label="Restored"
+              showLabel={!hideRestoredLabel}
+            />
           )}
         </div>
 
@@ -160,7 +172,11 @@ export function BeforeAfterCompare({
               priority
             />
           ) : (
-            <PlaceholderPanel variant="before" label="Original" />
+            <PlaceholderPanel
+              variant="before"
+              label="Original"
+              showLabel={!hideOriginalLabel}
+            />
           )}
         </div>
 
@@ -192,12 +208,16 @@ export function BeforeAfterCompare({
           </button>
         </div>
 
-        <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-stone-900/70 px-2 py-1 text-xs font-medium text-white">
-          Original
-        </div>
-        <div className="pointer-events-none absolute bottom-3 right-3 rounded-md bg-amber-800/80 px-2 py-1 text-xs font-medium text-white">
-          Restored
-        </div>
+        {!hideOriginalLabel && (
+          <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-stone-900/70 px-2 py-1 text-xs font-medium text-white">
+            Original
+          </div>
+        )}
+        {!hideRestoredLabel && (
+          <div className="pointer-events-none absolute bottom-3 right-3 rounded-md bg-amber-800/80 px-2 py-1 text-xs font-medium text-white">
+            Restored
+          </div>
+        )}
       </div>
       <p className="mt-3 text-center text-sm text-stone-600">
         Drag to compare · Arrow keys move the handle
