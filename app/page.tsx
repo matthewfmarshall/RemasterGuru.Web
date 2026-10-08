@@ -95,7 +95,13 @@ export default function MarketingHome() {
                 USA · US shipping only for now
               </p>
             </div>
-            <BeforeAfterCompare className="mx-auto w-full max-w-md lg:max-w-none" />
+            <BeforeAfterCompare
+              className="mx-auto w-full max-w-md lg:max-w-none"
+              beforeSrc="/marketing/baby-before.jpg"
+              afterSrc="/marketing/baby-after.jpg"
+              beforeAlt="Vintage infant portrait with fading, yellowing, and soft focus from age"
+              afterAlt="Same portrait with fading reduced and detail sharpened for print"
+            />
           </div>
         </section>
 
@@ -113,7 +119,12 @@ export default function MarketingHome() {
               in your book.
             </p>
             <div className="mt-10 flex justify-center">
-              <BeforeAfterCompare />
+              <BeforeAfterCompare
+                beforeSrc="/marketing/wedding-reception-before.jpg"
+                afterSrc="/marketing/wedding-reception-after.jpg"
+                beforeAlt="Wedding reception print with fading, scratches, and a crack through the image"
+                afterAlt="Same reception photo with damage repaired and color revived for print"
+              />
             </div>
             <p className="mt-6 text-center text-sm text-stone-600">
               Tears &amp; cracks · Detail recovered for print

@@ -61,10 +61,10 @@ function PlaceholderPanel({
 }
 
 export function BeforeAfterCompare({
-  beforeSrc = "/marketing/before.jpg",
-  afterSrc = "/marketing/after.jpg",
-  beforeAlt = "Original family photo scan",
-  afterAlt = "Restored photo ready for print",
+  beforeSrc = "/marketing/baby-before.jpg",
+  afterSrc = "/marketing/baby-after.jpg",
+  beforeAlt = "Vintage infant portrait with fading, yellowing, and soft focus from age",
+  afterAlt = "Same portrait with fading reduced and detail sharpened for print",
   className = "",
 }: BeforeAfterCompareProps) {
   const [position, setPosition] = useState(50);

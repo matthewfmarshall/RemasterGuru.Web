@@ -1,8 +1,10 @@
 # Marketing before/after images
 
-Add your family sample scans here for the landing page compare slider:
+Name pairs as `{subject}-before.jpg` and `{subject}-after.jpg`. The landing page wires each pair explicitly in `app/page.tsx`.
 
-- `before.jpg` — original scan (faded, damaged, or cracked)
-- `after.jpg` — restored version for print
+| Files | Landing section |
+| --- | --- |
+| `baby-before.jpg`, `baby-after.jpg` | Hero compare slider (top of page) |
+| `wedding-reception-before.jpg`, `wedding-reception-after.jpg` | **#proof** — “Real damage. Real family photos.” compare slider |
 
-The slider loads these paths automatically. If the files are missing, the page shows labeled gradient placeholders until you add real photos.
+`before.jpg` / `after.jpg` are not used. If image paths fail to load, the compare component shows labeled gradient placeholders until valid files are in place.
