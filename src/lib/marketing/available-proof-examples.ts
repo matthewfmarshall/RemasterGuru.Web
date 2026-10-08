@@ -6,6 +6,7 @@ import {
   GALLERY_PROOF_EXAMPLES,
   HERO_PROOF,
 } from "@/src/lib/marketing/proof-examples";
+import { COUPLE_PARK_RESTORATION_LEVELS_SRCS } from "@/src/lib/marketing/restoration-levels-example";
 
 function publicMarketingPath(urlPath: string): string {
   const relative = urlPath.replace(/^\//, "");
@@ -29,6 +30,12 @@ export function getFeaturedProof(): ProofExample | null {
 
 export function getAvailableGalleryProofs(): ProofExample[] {
   return GALLERY_PROOF_EXAMPLES.filter(proofPairExists);
+}
+
+export function restorationLevelsExampleAvailable(): boolean {
+  return COUPLE_PARK_RESTORATION_LEVELS_SRCS.every((src) =>
+    fs.existsSync(publicMarketingPath(src)),
+  );
 }
 
 /** For README / ops: gallery entries defined but files not yet on disk */

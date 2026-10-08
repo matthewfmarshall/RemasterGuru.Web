@@ -2,7 +2,11 @@ import Link from "next/link";
 import { BeforeAfterCompare } from "@/src/components/marketing/before-after-compare";
 import { MarketingFaq } from "@/src/components/marketing/marketing-faq";
 import { MarketingHeader } from "@/src/components/marketing/marketing-header";
-import { getAvailableGalleryProofs } from "@/src/lib/marketing/available-proof-examples";
+import { RestorationLevelsSection } from "@/src/components/marketing/restoration-levels-section";
+import {
+  getAvailableGalleryProofs,
+  restorationLevelsExampleAvailable,
+} from "@/src/lib/marketing/available-proof-examples";
 import {
   FEATURED_PROOF,
   HERO_PROOF,
@@ -66,6 +70,7 @@ const contrast = [
 
 export default function MarketingHome() {
   const galleryProofs = getAvailableGalleryProofs();
+  const showRestorationLevels = restorationLevelsExampleAvailable();
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900">
@@ -136,6 +141,7 @@ export default function MarketingHome() {
             <p className="mt-6 text-center text-sm text-stone-600">
               {FEATURED_PROOF.caption}
             </p>
+            {showRestorationLevels && <RestorationLevelsSection />}
             {galleryProofs.length > 0 && (
               <div className="mt-14">
                 <h3 className="text-center font-serif text-xl font-semibold text-stone-900 sm:text-2xl">

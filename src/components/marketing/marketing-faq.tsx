@@ -25,7 +25,7 @@ const items = [
     id: "repair-vs-uplift",
     question: "What is the difference between repair and remaster?",
     answer:
-      "Repair targets physical print damage — tears, cracks, heavy fading, creases. Remaster (uplift) is for scans that are intact but small or soft: we sharpen detail and prepare a higher-resolution file for larger spreads. Both use the same review step; you pick what looks right before it goes in your book.",
+      "Repair targets physical print damage — tears, cracks, heavy fading, creases. For intact scans you can choose a conservative light touch-up (blemishes out, grain and vintage character in) or a full remaster with 2K uplift plus cleanup. Both use the same review step; you pick what looks right before it goes in your book.",
   },
   {
     id: "optional",
