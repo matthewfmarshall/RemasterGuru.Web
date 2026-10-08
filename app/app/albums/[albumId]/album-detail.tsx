@@ -10,6 +10,7 @@ import {
 } from "@/src/lib/api";
 import { AlbumAssetThumbnail } from "./album-asset-thumbnail";
 import { AlbumAssetRemaster } from "./album-asset-remaster";
+import { AlbumCheckoutCta } from "@/src/components/checkout/album-checkout-cta";
 
 function formatStatus(status: string): string {
   return status.replace(/_/g, " ");
@@ -121,6 +122,8 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
           </div>
         </dl>
       </div>
+
+      <AlbumCheckoutCta albumId={albumId} albumStatus={album.status} />
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-zinc-900">Photos</h2>

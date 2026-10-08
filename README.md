@@ -61,10 +61,19 @@ If the API is not running, the app still loads: home health shows **unreachable*
 | `/app/albums` | List albums |
 | `/app/albums/new` | Create album |
 | `/app/albums/[albumId]` | Album detail and assets |
+| `/app/albums/[albumId]/book` | Book editor and checkout (when ready for print) |
+| `/app/checkout/success` | Stripe success return (`albumId` query) |
+| `/app/checkout/cancel` | Stripe cancel return (`albumId` query) |
 
 The `/app` layout shows navigation and live credits balance (`GET /api/v1/credits/balance`). All API calls send `X-User-Id` via `createDevApiClient()`.
 
 For a typed client demo, open [http://localhost:3000/dev/api-check](http://localhost:3000/dev/api-check).
+
+### Stripe checkout (test)
+
+1. Configure Stripe test keys on **RemasterGuru.Api** (see that repo’s README). The Web app does not store Stripe secrets.
+2. Mark an album **ready for print** on the book page, then use **Checkout** (Restore bundle or Album-only).
+3. Optional: run `stripe listen --forward-to http://localhost:5055/api/v1/webhooks/stripe` so paid orders grant credits and set album status to ordered.
 
 ## Build
 

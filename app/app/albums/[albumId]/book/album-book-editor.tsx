@@ -11,6 +11,7 @@ import {
 } from "@/src/lib/api";
 import { assetBookImageUrl } from "@/src/lib/api/asset-book-image";
 import type { AlbumBookInitialData } from "./page";
+import { AlbumCheckoutCta } from "@/src/components/checkout/album-checkout-cta";
 
 type AlbumBookEditorProps = {
   albumId: string;
@@ -329,6 +330,7 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                 : "Mark ready for print"}
             </Button>
           </Card>
+          <AlbumCheckoutCta albumId={albumId} albumStatus={album.status} />
         </aside>
       </div>
     </div>

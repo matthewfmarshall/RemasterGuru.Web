@@ -13,4 +13,5 @@ export type {
   PrintReadinessResponse,
   RemasterJobDto,
   UploadSessionResponse,
+  CheckoutProductDto,
 } from "./types";

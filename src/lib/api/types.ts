@@ -88,3 +88,12 @@ export type CreditsBalanceDto = {
   balance: number;
   freeTasteUsed: boolean;
 };
+
+export type CheckoutProductDto = {
+  sku: string;
+  name: string;
+  description: string;
+  amountCents: number;
+  currency: string;
+  includedRemasterCredits: number;
+};
