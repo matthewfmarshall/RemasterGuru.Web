@@ -46,7 +46,11 @@ Start **RemasterGuru.Api** first (see that repo’s README), then:
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The home page shows API health.
+Open [http://localhost:3000](http://localhost:3000). The home page is the public marketing site (no API required).
+
+### Marketing images
+
+Optional before/after samples for the landing slider live in `public/marketing/` (`before.jpg`, `after.jpg`). See `public/marketing/README.md`. Until you add them, the slider uses demo placeholders.
 
 If the API is not running, the app still loads: home health shows **unreachable**, and the `/app` header shows **Credits: —** until the API is up. `NEXT_PUBLIC_API_URL` must match the API base URL (default `http://localhost:5055`).
 
