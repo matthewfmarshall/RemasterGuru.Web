@@ -16,6 +16,9 @@ type BeforeAfterCompareProps = {
   beforeAlt?: string;
   afterAlt?: string;
   className?: string;
+  /** Overrides default max width on the compare track (e.g. `max-w-none` in a grid). */
+  trackClassName?: string;
+  showDragHint?: boolean;
 };
 
 const LABEL_HIDE_THRESHOLD = 2;
@@ -72,6 +75,8 @@ export function BeforeAfterCompare({
   beforeAlt = "Vintage infant portrait with fading, yellowing, and soft focus from age",
   afterAlt = "Same portrait with fading reduced and detail sharpened for print",
   className = "",
+  trackClassName = "",
+  showDragHint = true,
 }: BeforeAfterCompareProps) {
   const [position, setPosition] = useState(50);
   const [usePlaceholders, setUsePlaceholders] = useState(false);
@@ -128,7 +133,7 @@ export function BeforeAfterCompare({
     <div className={className}>
       <div
         ref={trackRef}
-        className="relative aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 shadow-lg shadow-stone-900/10 sm:aspect-[3/4]"
+        className={`relative aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 shadow-lg shadow-stone-900/10 sm:aspect-[3/4] ${trackClassName}`}
         role="group"
         aria-labelledby={labelId}
       >
@@ -219,9 +224,11 @@ export function BeforeAfterCompare({
           </div>
         )}
       </div>
-      <p className="mt-3 text-center text-sm text-stone-600">
-        Drag to compare · Arrow keys move the handle
-      </p>
+      {showDragHint && (
+        <p className="mt-3 text-center text-sm text-stone-600">
+          Drag to compare · Arrow keys move the handle
+        </p>
+      )}
     </div>
   );
 }

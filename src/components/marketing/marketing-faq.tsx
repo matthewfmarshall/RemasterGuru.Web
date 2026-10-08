@@ -22,10 +22,16 @@ const items = [
       "We keep your uploads so you can finish your book. You can download originals and restored copies. Retention and deletion are described in our Privacy Policy (coming soon).",
   },
   {
+    id: "repair-vs-uplift",
+    question: "What is the difference between repair and remaster?",
+    answer:
+      "Repair targets physical print damage — tears, cracks, heavy fading, creases. Remaster (uplift) is for scans that are intact but small or soft: we sharpen detail and prepare a higher-resolution file for larger spreads. Both use the same review step; you pick what looks right before it goes in your book.",
+  },
+  {
     id: "optional",
     question: "Do I have to pay for restoration?",
     answer:
-      "No. Build and order an album with your own files only. Restoration is optional and included in the Restore bundle when you want it.",
+      "No. Build and order an album with your own files only. Repair and remaster are optional and count toward restoration credits in the Restore bundle when you want them.",
   },
   {
     id: "privacy",

@@ -2,6 +2,11 @@ import Link from "next/link";
 import { BeforeAfterCompare } from "@/src/components/marketing/before-after-compare";
 import { MarketingFaq } from "@/src/components/marketing/marketing-faq";
 import { MarketingHeader } from "@/src/components/marketing/marketing-header";
+import { getAvailableGalleryProofs } from "@/src/lib/marketing/available-proof-examples";
+import {
+  FEATURED_PROOF,
+  HERO_PROOF,
+} from "@/src/lib/marketing/proof-examples";
 import {
   BOOK_PAGE_COUNT,
   formatMarketingPrice,
@@ -15,9 +20,9 @@ const steps = [
       "Add photos from your phone, scanner, or computer. We keep the original file.",
   },
   {
-    title: "Restore (optional)",
+    title: "Restore or remaster (optional)",
     body:
-      "Fix tears, fading, and softness — or skip and use your files as-is. Crop and brighten in the browser anytime.",
+      "Repair tears, fading, and cracks — or uplift older low-res scans for sharper prints. Skip either step and use your files as-is; crop and brighten in the browser anytime.",
   },
   {
     title: "Caption & layout",
@@ -51,7 +56,7 @@ const contrast = [
   {
     title: "Remaster Guru",
     lines: [
-      "Repair built for heirloom prints.",
+      "Repair damage and remaster older scans for print.",
       "Captions and print in one flow.",
       "Print-ready checks before you pay.",
     ],
@@ -60,6 +65,8 @@ const contrast = [
 ];
 
 export default function MarketingHome() {
+  const galleryProofs = getAvailableGalleryProofs();
+
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900">
       <MarketingHeader />
@@ -69,12 +76,12 @@ export default function MarketingHome() {
           <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:items-center lg:py-20">
             <div>
               <h1 className="font-serif text-4xl font-semibold leading-tight tracking-tight text-stone-900 sm:text-5xl">
-                Restore the photos that matter. Print the story.
+                Repair, remaster, and print the photos that matter.
               </h1>
               <p className="mt-5 text-lg leading-relaxed text-stone-700">
-                Upload old prints and scans. Repair damage and fading when you
-                need it — or build a captioned album from photos you already
-                love. We print and ship.
+                Upload old prints and scans. Fix tears, fading, and cracks — or
+                uplift low-res files for sharper spreads — then caption your
+                story. We print and ship.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link
@@ -97,10 +104,10 @@ export default function MarketingHome() {
             </div>
             <BeforeAfterCompare
               className="mx-auto w-full max-w-md lg:max-w-none"
-              beforeSrc="/marketing/baby-before.jpg"
-              afterSrc="/marketing/baby-after.jpg"
-              beforeAlt="Vintage infant portrait with fading, yellowing, and soft focus from age"
-              afterAlt="Same portrait with fading reduced and detail sharpened for print"
+              beforeSrc={HERO_PROOF.beforeSrc}
+              afterSrc={HERO_PROOF.afterSrc}
+              beforeAlt={HERO_PROOF.beforeAlt}
+              afterAlt={HERO_PROOF.afterAlt}
             />
           </div>
         </section>
@@ -111,30 +118,72 @@ export default function MarketingHome() {
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="font-serif text-3xl font-semibold text-stone-900">
-              Real damage. Real family photos.
+              Repair damage. Remaster older scans.
             </h2>
             <p className="mt-3 max-w-2xl text-stone-700">
-              Faded color, scratches, cracks through a face — the prints people
-              bury in albums. Remaster Guru repairs for print, then places them
-              in your book.
+              Heirloom prints with tears and fading — and everyday scans that
+              never had enough resolution for a big spread. Professional repair
+              technology handles both; you choose what goes in your book.
             </p>
             <div className="mt-10 flex justify-center">
               <BeforeAfterCompare
-                beforeSrc="/marketing/wedding-reception-before.jpg"
-                afterSrc="/marketing/wedding-reception-after.jpg"
-                beforeAlt="Wedding reception print with fading, scratches, and a crack through the image"
-                afterAlt="Same reception photo with damage repaired and color revived for print"
+                beforeSrc={FEATURED_PROOF.beforeSrc}
+                afterSrc={FEATURED_PROOF.afterSrc}
+                beforeAlt={FEATURED_PROOF.beforeAlt}
+                afterAlt={FEATURED_PROOF.afterAlt}
               />
             </div>
             <p className="mt-6 text-center text-sm text-stone-600">
-              Tears &amp; cracks · Detail recovered for print
+              {FEATURED_PROOF.caption}
             </p>
+            {galleryProofs.length > 0 && (
+              <div className="mt-14">
+                <h3 className="text-center font-serif text-xl font-semibold text-stone-900 sm:text-2xl">
+                  More family examples
+                </h3>
+                <p className="mt-2 text-center text-sm text-stone-600">
+                  Drag each slider — repair and uplift examples from real
+                  workflows
+                </p>
+                <ul
+                  className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
+                  aria-label="Additional before and after examples"
+                >
+                  {galleryProofs.map((example) => (
+                    <li key={example.id} className="flex flex-col">
+                      <BeforeAfterCompare
+                        className="w-full"
+                        trackClassName="max-w-none shadow-md"
+                        showDragHint={false}
+                        beforeSrc={example.beforeSrc}
+                        afterSrc={example.afterSrc}
+                        beforeAlt={example.beforeAlt}
+                        afterAlt={example.afterAlt}
+                      />
+                      <p className="mt-2 text-center text-xs text-stone-600">
+                        <span
+                          className={`mr-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                            example.kind === "repair"
+                              ? "bg-stone-200 text-stone-800"
+                              : "bg-amber-100 text-amber-900"
+                          }`}
+                        >
+                          {example.kind === "repair" ? "Repair" : "Remaster"}
+                        </span>
+                        {example.caption}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="mx-auto mt-10 max-w-2xl rounded-xl border border-amber-200/80 bg-amber-50/60 px-5 py-4 text-sm text-stone-800">
               <strong className="font-semibold text-stone-900">
-                We repair — we do not replace your memories.
+                We repair and remaster — we do not replace your memories.
               </strong>{" "}
               Restoration fills in missing print damage using what is still
-              visible. You review every result before it goes in your book.
+              visible; uplifts sharpen detail while keeping the same people and
+              moment. You review every result before it goes in your book.
             </div>
           </div>
         </section>
@@ -145,7 +194,7 @@ export default function MarketingHome() {
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="font-serif text-3xl font-semibold text-stone-900">
-              One place: restore, caption, print
+              One place: repair, remaster, caption, print
             </h2>
             <ol className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {steps.map((step, i) => (
@@ -318,9 +367,12 @@ export default function MarketingHome() {
               </div>
             </div>
             <p className="mt-8 text-center text-xs text-stone-600">
-              Restoration uses professional repair technology; results vary by
-              damage. You choose the version you want before printing. US
-              shipping only for now; tax and shipping calculated at checkout.
+              Photo repair and remaster use professional restoration technology;
+              results vary by source file. Restoration is optional — album-only
+              orders skip it; the Restore bundle includes restoration credits
+              for damage repair and scan uplifts. You choose each version before
+              printing. US shipping only for now; tax and shipping calculated at
+              checkout.
             </p>
           </div>
         </section>
