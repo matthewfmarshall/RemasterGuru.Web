@@ -24,14 +24,13 @@ Rendered in a responsive grid (1 → 2 → 4 columns) when both files for an ent
 
 `before.jpg` / `after.jpg` are not used. If image paths fail to load in the browser, the compare component shows labeled gradient placeholders until valid files are in place.
 
-## Restoration levels triptych (#proof)
+## Restoration levels sliders (#proof)
 
-Shown below the wedding featured compare when **all three** files exist. Copy lives in `src/lib/marketing/restoration-levels-example.ts`; UI in `restoration-levels-section.tsx`.
+Shown below the wedding featured compare when **all three** files exist. Copy and slider config live in `src/lib/marketing/restoration-levels-example.ts`; UI in `restoration-levels-section.tsx`. Two `BeforeAfterCompare` sliders (side-by-side on large screens, stacked on mobile) share the same **before** image:
 
-| File | On-page label | In-app mapping |
-| --- | --- | --- |
-| `couple-park-original.jpg` | Original scan | — (damaged upload) |
-| `couple-park-touchup.jpg` | Light touch-up | Conservative / light repair |
-| `couple-park-remaster.jpg` | Full remaster | Damage or full remaster preset (2K uplift + blemish removal) |
+| Before | After file | On-page label | In-app mapping |
+| --- | --- | --- | --- |
+| `couple-park-original.jpg` | `couple-park-touchup.jpg` | Light touch-up | Conservative / light repair |
+| `couple-park-original.jpg` | `couple-park-remaster.jpg` | Full remaster | Damage or full remaster preset (2K uplift + blemish removal) |
 
-Same scene in all three — one scan, two outcomes you can choose in the app.
+Same scene in all three files — one scan, two outcomes you can choose in the app.
