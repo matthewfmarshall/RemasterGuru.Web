@@ -10,6 +10,23 @@ function formatStatus(status: string): string {
   return status.replace(/_/g, " ");
 }
 
+function albumStatsLine(album: AlbumDto): string | null {
+  const max = album.maxAssets;
+  const count = album.assetCount;
+  if (max === undefined || count === undefined) {
+    return null;
+  }
+  const photos = `Photos: ${count} / ${max}`;
+  const warning = album.printWarningSummary;
+  if (warning && (album.printWarningCount ?? 0) > 0) {
+    return `${photos} · Print: ${warning}`;
+  }
+  if ((album.printWarningCount ?? 0) === 0) {
+    return `${photos} · Print: ready`;
+  }
+  return photos;
+}
+
 type AlbumsListClientProps = {
   initialAlbums: AlbumDto[];
 };
@@ -24,7 +41,9 @@ export function AlbumsListClient({ initialAlbums }: AlbumsListClientProps) {
 
   return (
     <ul className="space-y-3">
-      {albums.map((album) => (
+      {albums.map((album) => {
+        const statsLine = albumStatsLine(album);
+        return (
         <li key={album.id}>
           <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <Link
@@ -37,8 +56,11 @@ export function AlbumsListClient({ initialAlbums }: AlbumsListClientProps) {
                   {formatStatus(album.status)}
                 </span>
               </div>
-              <p className="mt-1 text-sm text-zinc-500">
-                Template: {album.templateId}
+              {statsLine ? (
+                <p className="mt-1 text-sm text-zinc-600">{statsLine}</p>
+              ) : null}
+              <p className="mt-0.5 text-xs text-zinc-500 sm:text-sm">
+                {album.templateId}
               </p>
             </Link>
             <AlbumDeleteButton
@@ -54,7 +76,8 @@ export function AlbumsListClient({ initialAlbums }: AlbumsListClientProps) {
             />
           </div>
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 }

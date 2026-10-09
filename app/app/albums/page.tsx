@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ButtonLink } from "@/src/components/ui";
+import { AlbumsAccountCredits } from "./albums-account-credits";
 import { AlbumsList } from "./albums-list";
 import AlbumsLoading from "./loading";
 
@@ -14,6 +15,9 @@ export default function AlbumsPage() {
           <p className="mt-1 text-sm text-zinc-600">
             Photo books you are building with Remaster Guru.
           </p>
+          <Suspense fallback={null}>
+            <AlbumsAccountCredits />
+          </Suspense>
         </div>
         <ButtonLink href="/app/albums/new">New album</ButtonLink>
       </div>

@@ -6,6 +6,11 @@ export type AlbumDto = {
   status: string;
   createdAt: string;
   updatedAt: string;
+  /** Present on GET /api/v1/albums list responses. */
+  assetCount?: number;
+  maxAssets?: number;
+  printWarningCount?: number;
+  printWarningSummary?: string | null;
 };
 
 export type AlbumDetailResponse = {
