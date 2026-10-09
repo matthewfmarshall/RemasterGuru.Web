@@ -98,20 +98,26 @@ export function BeforeAfterCompare({
     setPosition(clamp(pct));
   }, []);
 
-  const onPointerDown = (e: PointerEvent) => {
+  const onPointerDown = useCallback((e: PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    e.preventDefault();
     dragging.current = true;
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    trackRef.current?.setPointerCapture(e.pointerId);
     updateFromClientX(e.clientX);
-  };
+  }, [updateFromClientX]);
 
-  const onPointerMove = (e: PointerEvent) => {
+  const onPointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
     if (!dragging.current) return;
     updateFromClientX(e.clientX);
-  };
+  }, [updateFromClientX]);
 
-  const onPointerUp = () => {
+  const onPointerUp = useCallback((e: PointerEvent<HTMLDivElement>) => {
+    if (!dragging.current) return;
     dragging.current = false;
-  };
+    if (trackRef.current?.hasPointerCapture(e.pointerId)) {
+      trackRef.current.releasePointerCapture(e.pointerId);
+    }
+  }, []);
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "ArrowLeft") {
@@ -137,9 +143,13 @@ export function BeforeAfterCompare({
     <div className={className}>
       <div
         ref={trackRef}
-        className={`relative aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 shadow-lg shadow-stone-900/10 sm:aspect-[3/4] ${trackClassName}`}
+        className={`relative aspect-[4/5] w-full max-w-md cursor-ew-resize touch-none select-none overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 shadow-lg shadow-stone-900/10 sm:aspect-[3/4] ${trackClassName}`}
         role="group"
         aria-labelledby={labelId}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
       >
         <p id={labelId} className="sr-only">
           Before and after photo comparison. Use arrow keys or drag the handle
@@ -190,16 +200,12 @@ export function BeforeAfterCompare({
         </div>
 
         <div
-          className="absolute inset-y-0 z-10 w-1 -translate-x-1/2 cursor-ew-resize bg-white/90 shadow-md"
+          className="pointer-events-none absolute inset-y-0 z-10 w-1 -translate-x-1/2 bg-white/90 shadow-md"
           style={{ left: `${position}%` }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
         >
           <button
             type="button"
-            className="absolute left-1/2 top-1/2 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-amber-700/30 bg-white text-stone-700 shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700"
+            className="pointer-events-auto absolute left-1/2 top-1/2 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border-2 border-amber-700/30 bg-white text-stone-700 shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700"
             aria-label="Drag to compare before and after"
             aria-valuemin={0}
             aria-valuemax={100}
@@ -207,9 +213,7 @@ export function BeforeAfterCompare({
             role="slider"
             aria-orientation="horizontal"
             onKeyDown={onKeyDown}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             <span className="text-xs font-bold" aria-hidden="true">
               ↔

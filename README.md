@@ -79,6 +79,12 @@ For a typed client demo, open [http://localhost:3000/dev/api-check](http://local
 2. Mark an album **ready for print** on the book page, then use **Checkout** (Restore bundle or Album-only).
 3. Optional: run `stripe listen --forward-to http://localhost:5055/api/v1/webhooks/stripe` so paid orders grant credits and set album status to ordered.
 
+### Troubleshooting
+
+- **“Failed to fetch” / sliders or forms dead:** Confirm `NEXT_PUBLIC_API_URL=http://localhost:5055` (not port 5000) and the Api is running (`GET /health` → 200).
+- **New album reloads with `?title=` in the URL:** You are on a non-hydrated dev page—use [http://localhost:3000](http://localhost:3000) instead of `127.0.0.1`, or restart `npm run dev` after pulling (we allow `127.0.0.1` via `allowedDevOrigins` in `next.config.ts`).
+- **Create album spins forever:** Usually CORS or a stopped API; check the browser console and Api CORS for your dev origin (`localhost:3000`).
+
 ## Build
 
 ```bash

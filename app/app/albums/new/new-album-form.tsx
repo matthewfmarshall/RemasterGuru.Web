@@ -29,44 +29,60 @@ export function NewAlbumForm() {
     }
 
     setSubmitting(true);
-    const client = createDevApiClient();
-    const { data, error: apiError, response } = await client.POST(
-      "/api/v1/albums",
-      {
-        body: {
-          title: trimmed,
-          templateId: templateId.trim() || DEFAULT_TEMPLATE,
+    try {
+      const client = createDevApiClient();
+      const { data, error: apiError, response } = await client.POST(
+        "/api/v1/albums",
+        {
+          body: {
+            title: trimmed,
+            templateId: templateId.trim() || DEFAULT_TEMPLATE,
+          },
         },
-      },
-    );
+      );
 
-    setSubmitting(false);
+      const ok =
+        response.ok || response.status === 201 || response.status === 200;
+      if (apiError || !ok) {
+        const apiBase = getApiBaseUrl();
+        setError(
+          apiError
+            ? `Could not reach the API at ${apiBase}. Start RemasterGuru.Api (dotnet run) and confirm NEXT_PUBLIC_API_URL matches launchSettings (default ${apiBase}).`
+            : `Could not create album (HTTP ${response.status})`,
+        );
+        return;
+      }
 
-    if (apiError || !response.ok) {
+      let album = data as unknown as AlbumDto | undefined;
+      if (!album?.id) {
+        try {
+          album = (await response.clone().json()) as AlbumDto;
+        } catch {
+          /* fall through */
+        }
+      }
+
+      const id = album?.id;
+      if (!id) {
+        setError("Album was created but no id was returned.");
+        return;
+      }
+
+      markAlbumSaved();
+      router.replace(`/app/albums/${id}`);
+    } catch {
       const apiBase = getApiBaseUrl();
       setError(
-        apiError
-          ? `Could not reach the API at ${apiBase}. Start RemasterGuru.Api (dotnet run) and confirm NEXT_PUBLIC_API_URL matches launchSettings (default ${apiBase}).`
-          : `Could not create album (HTTP ${response.status})`,
+        `Could not reach the API at ${apiBase}. Start RemasterGuru.Api (dotnet run) and use http://localhost:3000 (not 127.0.0.1) if the dev UI does not respond.`,
       );
-      return;
+    } finally {
+      setSubmitting(false);
     }
-
-    const album = data as unknown as AlbumDto | undefined;
-    const id = album?.id;
-    if (!id) {
-      setError("Album was created but no id was returned.");
-      return;
-    }
-
-    markAlbumSaved();
-    router.push(`/app/albums/${id}`);
-    router.refresh();
   }
 
   return (
     <Card>
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4" noValidate>
         {error ? <Alert variant="error">{error}</Alert> : null}
         <div className="space-y-1.5">
           <label htmlFor="title" className="text-sm font-medium text-zinc-800">
@@ -74,7 +90,6 @@ export function NewAlbumForm() {
           </label>
           <Input
             id="title"
-            name="title"
             placeholder="Summer 2026"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -91,7 +106,6 @@ export function NewAlbumForm() {
           </label>
           <Input
             id="templateId"
-            name="templateId"
             value={templateId}
             onChange={(e) => setTemplateId(e.target.value)}
             disabled={submitting}

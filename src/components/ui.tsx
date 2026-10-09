@@ -7,6 +7,7 @@ const baseButton =
 export function Button({
   variant = "primary",
   className = "",
+  type = "button",
   ...props
 }: ComponentProps<"button"> & {
   variant?: "primary" | "secondary" | "ghost";
@@ -19,7 +20,7 @@ export function Button({
         : "text-zinc-700 hover:bg-zinc-100";
   return (
     <button
-      type="button"
+      type={type}
       className={`${baseButton} ${styles} ${className}`}
       {...props}
     />
