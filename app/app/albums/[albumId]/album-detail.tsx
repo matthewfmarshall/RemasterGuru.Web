@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BackToAlbumsLink } from "../back-to-albums-link";
 import { Alert, Card } from "@/src/components/ui";
 import { AlbumPhotoUpload } from "./album-photo-upload";
 import {
@@ -87,12 +88,7 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
   return (
     <div className="space-y-8">
       <div>
-        <Link
-          href="/app/albums"
-          className="text-sm text-zinc-600 underline underline-offset-4"
-        >
-          ← Albums
-        </Link>
+        <BackToAlbumsLink />
         <div className="mt-3">
           <AlbumTitleEditor albumId={albumId} initialTitle={album.title} />
         </div>

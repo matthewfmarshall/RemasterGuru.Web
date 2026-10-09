@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AlbumDto } from "@/src/lib/api";
 import { AlbumDeleteButton } from "./album-delete-button";
 
@@ -17,6 +17,10 @@ type AlbumsListClientProps = {
 export function AlbumsListClient({ initialAlbums }: AlbumsListClientProps) {
   const router = useRouter();
   const [albums, setAlbums] = useState(initialAlbums);
+
+  useEffect(() => {
+    setAlbums(initialAlbums);
+  }, [initialAlbums]);
 
   return (
     <ul className="space-y-3">
