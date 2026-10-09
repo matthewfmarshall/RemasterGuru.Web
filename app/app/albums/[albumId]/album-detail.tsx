@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BackToAlbumsLink } from "../back-to-albums-link";
-import { Alert, Card } from "@/src/components/ui";
+import { Alert } from "@/src/components/ui";
 import { AlbumPhotoUpload } from "./album-photo-upload";
 import {
   catchNetworkFailure,
@@ -11,8 +11,7 @@ import {
 } from "@/src/lib/api";
 import { AlbumCheckoutCta } from "@/src/components/checkout/album-checkout-cta";
 import { AlbumTitleEditor } from "../album-title-editor";
-import { AlbumDangerZone } from "../album-danger-zone";
-import { AlbumAssetCard } from "./album-asset-card";
+import { AlbumAssetsSection } from "./album-assets-section";
 
 function formatStatus(status: string): string {
   return status.replace(/_/g, " ");
@@ -122,40 +121,18 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
 
       <AlbumCheckoutCta albumId={albumId} albumStatus={album.status} />
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-zinc-900">Photos</h2>
-        {!assetsResult.ok ? (
-          <Alert variant="error">{assetsResult.message}</Alert>
-        ) : assetsResult.assets.length === 0 ? (
-          <Card>
-            <p className="text-sm text-zinc-600">
-              No photos in this album yet. Use the uploader below to add your
-              first image.
-            </p>
-          </Card>
-        ) : (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {assetsResult.assets.map((asset) => (
-              <li key={asset.id}>
-                <AlbumAssetCard albumId={albumId} asset={asset} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <AlbumAssetsSection
+        albumId={albumId}
+        albumTitle={album.title}
+        initialAssets={assetsResult.ok ? assetsResult.assets : []}
+        assetsLoadError={assetsResult.ok ? null : assetsResult.message}
+        fallbackPhotoCount={albumResult.detail.pageSummary.assetCount}
+      />
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-zinc-900">Upload photos</h2>
         <AlbumPhotoUpload albumId={albumId} />
       </section>
-
-      <AlbumDangerZone
-        albumId={albumId}
-        albumTitle={album.title}
-        photoCount={
-          assetsResult.ok ? assetsResult.assets.length : albumResult.detail.pageSummary.assetCount
-        }
-      />
     </div>
   );
 }

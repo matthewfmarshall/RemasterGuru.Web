@@ -9,9 +9,14 @@ import { AlbumAssetThumbnail } from "./album-asset-thumbnail";
 type AlbumAssetCardProps = {
   albumId: string;
   asset: AssetDto;
+  onDeleted?: () => void;
 };
 
-export function AlbumAssetCard({ albumId, asset }: AlbumAssetCardProps) {
+export function AlbumAssetCard({
+  albumId,
+  asset,
+  onDeleted,
+}: AlbumAssetCardProps) {
   return (
     <Card className="overflow-hidden p-0">
       <div className="relative aspect-[4/3] bg-zinc-100">
@@ -34,7 +39,11 @@ export function AlbumAssetCard({ albumId, asset }: AlbumAssetCardProps) {
               : null}
           </p>
         ) : null}
-        <AlbumAssetDelete albumId={albumId} assetId={asset.id} />
+        <AlbumAssetDelete
+          albumId={albumId}
+          assetId={asset.id}
+          onDeleted={onDeleted}
+        />
       </div>
       <AlbumAssetRemaster asset={asset} />
     </Card>

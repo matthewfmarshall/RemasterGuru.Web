@@ -12,12 +12,16 @@ type AlbumDangerZoneProps = {
   albumId: string;
   albumTitle: string;
   photoCount: number;
+  onPhotosPurged?: () => void;
+  onAlbumDeleted?: () => void;
 };
 
 export function AlbumDangerZone({
   albumId,
   albumTitle,
   photoCount,
+  onPhotosPurged,
+  onAlbumDeleted,
 }: AlbumDangerZoneProps) {
   const router = useRouter();
   const [purgeOpen, setPurgeOpen] = useState(false);
@@ -41,6 +45,7 @@ export function AlbumDangerZone({
       return;
     }
     setPurgeOpen(false);
+    onPhotosPurged?.();
     router.refresh();
   }
 
@@ -72,6 +77,7 @@ export function AlbumDangerZone({
           albumTitle={albumTitle}
           redirectToList
           label="Delete album"
+          onDeleted={onAlbumDeleted}
         />
       </div>
 

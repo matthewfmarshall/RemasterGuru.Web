@@ -50,12 +50,12 @@ export function AlbumDeleteButton({
       return;
     }
     setOpen(false);
+    onDeleted?.();
     if (redirectToList) {
       router.push("/app/albums");
       router.refresh();
       return;
     }
-    onDeleted?.();
     router.refresh();
   }
 
