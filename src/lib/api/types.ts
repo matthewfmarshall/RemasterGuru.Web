@@ -74,6 +74,7 @@ export type AssetDto = {
   } | null;
   activeVersionId: string | null;
   displayVersion: AssetDisplayVersion;
+  acceptedForPrint?: boolean;
   versions: AssetVersionDto[];
 };
 

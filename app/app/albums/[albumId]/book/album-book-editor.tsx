@@ -9,10 +9,11 @@ import {
   type AssetDto,
   type PrintReadinessResponse,
 } from "@/src/lib/api";
-import { assetBookImageUrl } from "@/src/lib/api/asset-book-image";
 import type { AlbumBookInitialData } from "./album-book";
 import { AlbumCheckoutCta } from "@/src/components/checkout/album-checkout-cta";
-import { AlbumAssetDelete } from "../../album-asset-delete";
+import { BookPageActionsMenu } from "./book-page-actions-menu";
+import { BOOK_PAGE_ASPECT_CLASS } from "./book-page-aspect";
+import { assetBookImageUrl } from "@/src/lib/api/asset-book-image";
 
 type AlbumBookEditorProps = {
   albumId: string;
@@ -36,6 +37,13 @@ function warningsForAsset(
   return readiness.warnings.filter((w) => w.assetId === assetId);
 }
 
+function isPagePrintReady(
+  asset: AssetDto,
+  readiness: PrintReadinessResponse,
+): boolean {
+  return Boolean(asset.acceptedForPrint) || warningsForAsset(readiness, asset.id).length === 0;
+}
+
 export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
   const router = useRouter();
   const [album, setAlbum] = useState(initial.album);
@@ -54,6 +62,11 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
     }
     return slots;
   }, [assets, pageCount]);
+
+  const unacceptedFlaggedCount = useMemo(() => {
+    const flagged = new Set(printReadiness.warnings.map((w) => w.assetId));
+    return assets.filter((a) => flagged.has(a.id) && !a.acceptedForPrint).length;
+  }, [assets, printReadiness.warnings]);
 
   const persistLayout = useCallback(
     async (ordered: AssetDto[]) => {
@@ -87,6 +100,60 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
       setPrintReadiness(result.data as unknown as PrintReadinessResponse);
     }
   }, [albumId]);
+
+  const mergeAssetsFromApi = useCallback((list: AssetDto[]) => {
+    const byId = new Map(list.map((a) => [a.id, a]));
+    setAssets((prev) =>
+      prev.map((a) => (byId.has(a.id) ? { ...a, ...byId.get(a.id)! } : a)),
+    );
+  }, []);
+
+  const setAcceptedForPrint = async (assetId: string, acceptedForPrint: boolean) => {
+    setError(null);
+    const client = createDevApiClient();
+    const result = await client.PATCH("/api/v1/assets/{assetId}", {
+      params: { path: { assetId } },
+      body: { acceptedForPrint },
+    });
+    if (result.error || !result.response.ok) {
+      setError("Could not update print acceptance for this page.");
+      return;
+    }
+    const updated = result.data as unknown as AssetDto;
+    setAssets((prev) =>
+      prev.map((a) => (a.id === assetId ? { ...a, ...updated } : a)),
+    );
+  };
+
+  const acceptAllFlagged = async () => {
+    setBusy(true);
+    setError(null);
+    setStatusMessage(null);
+    const client = createDevApiClient();
+    const result = await client.POST(
+      "/api/v1/albums/{albumId}/accept-print-warnings",
+      {
+        params: { path: { albumId } },
+      },
+    );
+    setBusy(false);
+    if (result.error || !result.response.ok) {
+      setError("Could not accept flagged pages.");
+      return;
+    }
+    const payload = result.data as unknown as {
+      acceptedCount: number;
+      assets: AssetDto[];
+    };
+    mergeAssetsFromApi(payload.assets);
+    if (payload.acceptedCount > 0) {
+      setStatusMessage(
+        `Accepted print warnings for ${payload.acceptedCount} page${payload.acceptedCount === 1 ? "" : "s"}.`,
+      );
+    }
+    await refreshPrintReadiness();
+    router.refresh();
+  };
 
   const moveAsset = async (index: number, direction: -1 | 1) => {
     const next = moveItem(assets, index, index + direction);
@@ -177,6 +244,7 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
               <ul className="space-y-3">
                 {assets.map((asset, index) => {
                   const assetWarnings = warningsForAsset(printReadiness, asset.id);
+                  const pageReady = isPagePrintReady(asset, printReadiness);
                   return (
                     <li key={asset.id}>
                       <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start">
@@ -185,43 +253,47 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                           <img
                             src={assetBookImageUrl(asset)}
                             alt={asset.caption ?? `Page ${index + 1}`}
-                            className="h-full w-full object-cover"
+                            className="absolute inset-0 m-auto max-h-full max-w-full object-contain"
                           />
                         </div>
                         <div className="min-w-0 flex-1 space-y-2">
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-medium text-zinc-900">
-                              Page {index + 1}
-                            </p>
-                            <div className="flex flex-wrap items-center gap-1">
-                              <Button
-                                variant="secondary"
-                                className="px-2 py-1 text-xs"
-                                disabled={busy || index === 0}
-                                onClick={() => void moveAsset(index, -1)}
-                              >
-                                ↑
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                className="px-2 py-1 text-xs"
-                                disabled={busy || index === assets.length - 1}
-                                onClick={() => void moveAsset(index, 1)}
-                              >
-                                ↓
-                              </Button>
-                              <AlbumAssetDelete
-                                albumId={albumId}
-                                assetId={asset.id}
-                                label="Remove"
-                                className="px-2 py-1 text-xs"
-                                onDeleted={() => {
-                                  setAssets((prev) =>
-                                    prev.filter((a) => a.id !== asset.id),
-                                  );
-                                }}
-                              />
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium text-zinc-900">
+                                Page {index + 1}
+                              </p>
+                              {pageReady ? (
+                                <span
+                                  className="text-xs font-medium text-emerald-700"
+                                  title="Ready for print"
+                                >
+                                  ✓ Ready
+                                </span>
+                              ) : null}
                             </div>
+                            <BookPageActionsMenu
+                              albumId={albumId}
+                              asset={asset}
+                              pageIndex={index}
+                              disabled={busy}
+                              canMoveUp={index > 0}
+                              canMoveDown={index < assets.length - 1}
+                              onMoveUp={() => void moveAsset(index, -1)}
+                              onMoveDown={() => void moveAsset(index, 1)}
+                              onAcceptForPrint={() =>
+                                void setAcceptedForPrint(asset.id, true)
+                              }
+                              onDeleted={() => {
+                                setAssets((prev) =>
+                                  prev.filter((a) => a.id !== asset.id),
+                                );
+                                void refreshPrintReadiness();
+                              }}
+                              onRemasterSucceeded={() => {
+                                router.refresh();
+                                void refreshPrintReadiness();
+                              }}
+                            />
                           </div>
                           <label className="block text-xs text-zinc-500">
                             Caption
@@ -244,12 +316,24 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                               }
                             />
                           </label>
-                          {assetWarnings.length > 0 ? (
+                          {assetWarnings.length > 0 && !asset.acceptedForPrint ? (
                             <ul className="space-y-1 text-xs text-amber-800">
                               {assetWarnings.map((w) => (
                                 <li key={`${w.code}-${w.message}`}>{w.message}</li>
                               ))}
                             </ul>
+                          ) : null}
+                          {assetWarnings.length > 0 && !asset.acceptedForPrint ? (
+                            <Button
+                              variant="secondary"
+                              className="text-xs"
+                              disabled={busy}
+                              onClick={() =>
+                                void setAcceptedForPrint(asset.id, true)
+                              }
+                            >
+                              Accept for print
+                            </Button>
                           ) : null}
                         </div>
                       </Card>
@@ -268,13 +352,13 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                   key={`page-${index}`}
                   className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm"
                 >
-                  <div className="relative aspect-[3/4] bg-zinc-100">
+                  <div className={`relative bg-zinc-100 ${BOOK_PAGE_ASPECT_CLASS}`}>
                     {asset ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={assetBookImageUrl(asset)}
                         alt={asset.caption ?? `Page ${index + 1}`}
-                        className="h-full w-full object-cover"
+                        className="absolute inset-0 m-auto max-h-full max-w-full object-contain"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center text-xs text-zinc-400">
@@ -312,6 +396,13 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                 No resolution warnings for your current photos.
               </p>
             )}
+            {unacceptedFlaggedCount > 0 ? (
+              <p className="text-sm text-amber-800">
+                {unacceptedFlaggedCount} flagged page
+                {unacceptedFlaggedCount === 1 ? "" : "s"} still need acceptance
+                before print.
+              </p>
+            ) : null}
             <p className="text-xs text-zinc-500">
               Full-page prints look best at{" "}
               {printReadiness.minLongEdgePx}px or more on the long edge.
@@ -332,6 +423,14 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                 ))}
               </ul>
             ) : null}
+            <Button
+              className="w-full"
+              variant="secondary"
+              disabled={busy || unacceptedFlaggedCount === 0}
+              onClick={() => void acceptAllFlagged()}
+            >
+              Accept all flagged pages
+            </Button>
             <Button
               className="w-full"
               disabled={busy || album.status === "ready_for_print"}
