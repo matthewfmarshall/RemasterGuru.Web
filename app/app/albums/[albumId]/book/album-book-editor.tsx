@@ -10,7 +10,7 @@ import {
   type PrintReadinessResponse,
 } from "@/src/lib/api";
 import { assetBookImageUrl } from "@/src/lib/api/asset-book-image";
-import type { AlbumBookInitialData } from "./page";
+import type { AlbumBookInitialData } from "./album-book";
 import { AlbumCheckoutCta } from "@/src/components/checkout/album-checkout-cta";
 
 type AlbumBookEditorProps = {
