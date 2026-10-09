@@ -1,14 +1,10 @@
-import Link from "next/link";
 import { Alert, ButtonLink, Card } from "@/src/components/ui";
+import { AlbumsListClient } from "./albums-list-client";
 import {
   catchNetworkFailure,
   createDevApiClient,
   type AlbumDto,
 } from "@/src/lib/api";
-
-function formatStatus(status: string): string {
-  return status.replace(/_/g, " ");
-}
 
 async function loadAlbums(): Promise<
   { ok: true; albums: AlbumDto[] } | { ok: false; message: string }
@@ -52,26 +48,5 @@ export async function AlbumsList() {
     );
   }
 
-  return (
-    <ul className="space-y-3">
-      {result.albums.map((album) => (
-        <li key={album.id}>
-          <Link
-            href={`/app/albums/${album.id}`}
-            className="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:shadow"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-medium text-zinc-900">{album.title}</span>
-              <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium capitalize text-zinc-700">
-                {formatStatus(album.status)}
-              </span>
-            </div>
-            <p className="mt-1 text-sm text-zinc-500">
-              Template: {album.templateId}
-            </p>
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
+  return <AlbumsListClient initialAlbums={result.albums} />;
 }

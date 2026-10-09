@@ -8,9 +8,10 @@ import {
   type AlbumDetailResponse,
   type AssetDto,
 } from "@/src/lib/api";
-import { AlbumAssetThumbnail } from "./album-asset-thumbnail";
-import { AlbumAssetRemaster } from "./album-asset-remaster";
 import { AlbumCheckoutCta } from "@/src/components/checkout/album-checkout-cta";
+import { AlbumTitleEditor } from "../album-title-editor";
+import { AlbumDangerZone } from "../album-danger-zone";
+import { AlbumAssetCard } from "./album-asset-card";
 
 function formatStatus(status: string): string {
   return status.replace(/_/g, " ");
@@ -92,9 +93,9 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
         >
           ← Albums
         </Link>
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-900">
-          {album.title}
-        </h1>
+        <div className="mt-3">
+          <AlbumTitleEditor albumId={albumId} initialTitle={album.title} />
+        </div>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Link
             href={`/app/albums/${albumId}/book`}
@@ -140,32 +141,7 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {assetsResult.assets.map((asset) => (
               <li key={asset.id}>
-                <Card className="overflow-hidden p-0">
-                  <div className="relative aspect-[4/3] bg-zinc-100">
-                    <AlbumAssetThumbnail
-                      asset={asset}
-                      alt={asset.caption ?? "Album photo"}
-                    />
-                  </div>
-                  <div className="space-y-1 p-4">
-                    {asset.caption ? (
-                      <p className="text-sm font-medium text-zinc-900">
-                        {asset.caption}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-zinc-500">No caption</p>
-                    )}
-                    {asset.original?.contentType ? (
-                      <p className="text-xs text-zinc-500">
-                        {asset.original.contentType}
-                        {asset.original.width && asset.original.height
-                          ? ` · ${asset.original.width}×${asset.original.height}`
-                          : null}
-                      </p>
-                    ) : null}
-                  </div>
-                  <AlbumAssetRemaster asset={asset} />
-                </Card>
+                <AlbumAssetCard albumId={albumId} asset={asset} />
               </li>
             ))}
           </ul>
@@ -176,6 +152,14 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
         <h2 className="text-lg font-semibold text-zinc-900">Upload photos</h2>
         <AlbumPhotoUpload albumId={albumId} />
       </section>
+
+      <AlbumDangerZone
+        albumId={albumId}
+        albumTitle={album.title}
+        photoCount={
+          assetsResult.ok ? assetsResult.assets.length : albumResult.detail.pageSummary.assetCount
+        }
+      />
     </div>
   );
 }

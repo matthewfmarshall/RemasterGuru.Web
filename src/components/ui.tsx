@@ -1,31 +1,37 @@
 import Link from "next/link";
-import type { ComponentProps, ReactNode } from "react";
+import { forwardRef, type ComponentProps, type ReactNode } from "react";
 
 const baseButton =
   "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 disabled:pointer-events-none disabled:opacity-50";
 
-export function Button({
-  variant = "primary",
-  className = "",
-  type = "button",
-  ...props
-}: ComponentProps<"button"> & {
-  variant?: "primary" | "secondary" | "ghost";
-}) {
+export const Button = forwardRef(function Button(
+  {
+    variant = "primary",
+    className = "",
+    type = "button",
+    ...props
+  }: ComponentProps<"button"> & {
+    variant?: "primary" | "secondary" | "ghost" | "danger";
+  },
+  ref: React.Ref<HTMLButtonElement>,
+) {
   const styles =
     variant === "primary"
       ? "bg-zinc-900 text-white hover:bg-zinc-800"
       : variant === "secondary"
         ? "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50"
-        : "text-zinc-700 hover:bg-zinc-100";
+        : variant === "danger"
+          ? "bg-red-700 text-white hover:bg-red-800 focus-visible:outline-red-800"
+          : "text-zinc-700 hover:bg-zinc-100";
   return (
     <button
+      ref={ref}
       type={type}
       className={`${baseButton} ${styles} ${className}`}
       {...props}
     />
   );
-}
+});
 
 export function ButtonLink({
   href,

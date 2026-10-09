@@ -12,6 +12,7 @@ import {
 import { assetBookImageUrl } from "@/src/lib/api/asset-book-image";
 import type { AlbumBookInitialData } from "./album-book";
 import { AlbumCheckoutCta } from "@/src/components/checkout/album-checkout-cta";
+import { AlbumAssetDelete } from "../../album-asset-delete";
 
 type AlbumBookEditorProps = {
   albumId: string;
@@ -192,7 +193,7 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                             <p className="text-sm font-medium text-zinc-900">
                               Page {index + 1}
                             </p>
-                            <div className="flex gap-1">
+                            <div className="flex flex-wrap items-center gap-1">
                               <Button
                                 variant="secondary"
                                 className="px-2 py-1 text-xs"
@@ -209,6 +210,17 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                               >
                                 ↓
                               </Button>
+                              <AlbumAssetDelete
+                                albumId={albumId}
+                                assetId={asset.id}
+                                label="Remove"
+                                className="px-2 py-1 text-xs"
+                                onDeleted={() => {
+                                  setAssets((prev) =>
+                                    prev.filter((a) => a.id !== asset.id),
+                                  );
+                                }}
+                              />
                             </div>
                           </div>
                           <label className="block text-xs text-zinc-500">

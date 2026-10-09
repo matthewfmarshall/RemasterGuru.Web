@@ -71,6 +71,8 @@ If the API is not running, the app still loads: home health shows **unreachable*
 
 The `/app` layout shows navigation and live credits balance (`GET /api/v1/credits/balance`). All API calls send `X-User-Id` via `createDevApiClient()`.
 
+**Album management:** On album detail you can edit the title, delete the album, remove all photos (keeps the album), or remove individual photos. Per-album “don’t ask again” for photo delete is stored in `localStorage` under `remaster-guru:skip-asset-delete-confirm:{albumId}`.
+
 For a typed client demo, open [http://localhost:3000/dev/api-check](http://localhost:3000/dev/api-check).
 
 ### Stripe checkout (test)
