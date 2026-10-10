@@ -10,24 +10,40 @@ Single container: **ASP.NET Core API** (internal port **5055**, SQLite + local b
 
 ## Local Docker smoke test
 
+Build from the parent directory that contains **both** `RemasterGuru.Api` and `RemasterGuru.Web`.
+
+`~/Development/remasterguru.env` can supply values if every key matches what the container expects. The file may include `DOMAIN=`; the entrypoint copies that to `AUTH0_DOMAIN` when `AUTH0_DOMAIN` is unset. Use the **Space runtime URL** for base URLs locally (`http://localhost:7860`), not the Hub page URL (`https://huggingface.co/spaces/...`).
+
+**Never** paste truncated placeholders (e.g. `https://…/` or `...`) into env files — Auth0 and Next.js need full hostnames and URLs.
+
 ```bash
 cd ~/Development
 docker build -f RemasterGuru.Web/deploy/huggingface/Dockerfile -t remasterguru-hf .
-docker run --rm -p 7860:7860 \
-  -e AUTH0_SECRET=... \
-  -e AUTH0_DOMAIN=... \
-  -e AUTH0_CLIENT_ID=... \
-  -e AUTH0_CLIENT_SECRET=... \
-  -e AUTH0_AUDIENCE=... \
+docker run --rm -p 7860:7860 --env-file remasterguru.env \
   -e AUTH0_BASE_URL=http://localhost:7860 \
+  -e APP_BASE_URL=http://localhost:7860 \
   -e App__WebBaseUrl=http://localhost:7860 \
-  -e Auth0__Domain=... \
-  -e Auth0__Audience=... \
-  -e Cors__AllowHuggingFaceSpaceHosts=true \
+  -e API_INTERNAL_URL=http://127.0.0.1:5055 \
   remasterguru-hf
 ```
 
-Open `http://localhost:7860`. Do not commit secrets; use env vars or HF Space **Settings → Secrets**.
+`remasterguru.env` → container mapping (names only):
+
+| `remasterguru.env` key | Container / app |
+|------------------------|-----------------|
+| `AUTH0_SECRET` | Next.js session |
+| `AUTH0_DOMAIN` or `DOMAIN` | Auth0 tenant hostname (no `https://`) |
+| `AUTH0_CLIENT_ID` | Web app client |
+| `AUTH0_CLIENT_SECRET` | Web app client |
+| `AUTH0_AUDIENCE` | API identifier |
+| `AUTH0_BASE_URL` / `APP_BASE_URL` | Public app origin (override for local Docker as above) |
+| `Auth0__Domain` | API JWT validation |
+| `Auth0__Audience` | API JWT validation |
+| `App__WebBaseUrl` | API CORS / links |
+| `Cors__AllowHuggingFaceSpaceHosts` | `true` for HF |
+| `API_INTERNAL_URL` | BFF → API (`http://127.0.0.1:5055` in container) |
+
+On startup, `entrypoint.sh` logs whether required Auth0 variables are set (values are not printed). Open `http://localhost:7860` and `/auth/login`. Do not commit secrets.
 
 ## Create the Space
 

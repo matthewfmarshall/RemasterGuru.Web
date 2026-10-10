@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { getAuth0Domain, getAppBaseUrl } from "./src/lib/auth/config";
 
 function readEnv(name: string): string | undefined {
   const value = process.env[name]?.trim();
@@ -6,25 +7,17 @@ function readEnv(name: string): string | undefined {
 }
 
 function isAuth0ConfiguredAtBuild(): boolean {
-  const domain =
-    readEnv("AUTH0_DOMAIN")
-    ?? readEnv("AUTH0_ISSUER_BASE_URL")?.replace(/^https?:\/\//, "").replace(/\/$/, "");
   return Boolean(
     readEnv("AUTH0_SECRET")
       && readEnv("AUTH0_CLIENT_ID")
       && readEnv("AUTH0_CLIENT_SECRET")
-      && domain,
+      && getAuth0Domain(),
   );
 }
 
-const appBaseUrl =
-  readEnv("AUTH0_BASE_URL")
-  ?? readEnv("APP_BASE_URL")
-  ?? "http://localhost:3000";
-
 const nextConfig: NextConfig = {
   env: isAuth0ConfiguredAtBuild()
-    ? { NEXT_PUBLIC_APP_BASE_URL: appBaseUrl.replace(/\/$/, "") }
+    ? { NEXT_PUBLIC_APP_BASE_URL: getAppBaseUrl() }
     : undefined,
   output: process.env.NEXT_STANDALONE_OUTPUT === "1" ? "standalone" : undefined,
   // Next dev blocks cross-host RSC/HMR unless listed; 127.0.0.1 ≠ localhost.

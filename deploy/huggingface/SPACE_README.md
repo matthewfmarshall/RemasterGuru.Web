@@ -39,6 +39,14 @@ Configure in **Settings → Repository secrets** before the first build. Names o
 
 Auth0 **Allowed Callback / Logout / Web Origins** must include this Space origin, e.g. `https://beek44-remasterguru-staging.hf.space`.
 
+## Hugging Face Space settings (Docker SDK)
+
+In the Hub UI (**Space → Settings**):
+
+1. **Space SDK** must be **Docker** (not Gradio/Static). If the Space was created with another SDK, change it here or recreate the Space as Docker.
+2. Repository root must contain **`Dockerfile`** (from `Dockerfile.space`) and **`README.md`** with YAML front matter below (`sdk: docker`, `app_port: 7860`).
+3. **App port** `7860` must match `EXPOSE` in the Dockerfile and this README.
+
 ## Notes
 
 - Remaster **worker** is not started in this image; album UI, auth, and checkout still run.
