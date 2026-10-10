@@ -2,14 +2,14 @@ import { Alert, ButtonLink, Card } from "@/src/components/ui";
 import { AlbumsListClient } from "./albums-list-client";
 import {
   catchNetworkFailure,
-  createDevApiClient,
   type AlbumDto,
 } from "@/src/lib/api";
+import { createServerAppApiClient } from "@/src/lib/api/server-client";
 
 async function loadAlbums(): Promise<
   { ok: true; albums: AlbumDto[] } | { ok: false; message: string }
 > {
-  const client = createDevApiClient();
+  const client = await createServerAppApiClient();
   const network = await catchNetworkFailure(() => client.GET("/api/v1/albums"));
   if (!network.ok) {
     return { ok: false, message: network.message };

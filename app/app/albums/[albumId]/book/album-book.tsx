@@ -2,11 +2,11 @@ import { notFound } from "next/navigation";
 import { Alert } from "@/src/components/ui";
 import {
   catchNetworkFailure,
-  createDevApiClient,
   type AlbumDto,
   type AlbumLayoutResponse,
   type PrintReadinessResponse,
 } from "@/src/lib/api";
+import { createServerAppApiClient } from "@/src/lib/api/server-client";
 import { AlbumBookEditor } from "./album-book-editor";
 
 export type AlbumBookInitialData = {
@@ -16,7 +16,7 @@ export type AlbumBookInitialData = {
 };
 
 async function loadBookData(albumId: string) {
-  const client = createDevApiClient();
+  const client = await createServerAppApiClient();
 
   const albumNetwork = await catchNetworkFailure(() =>
     client.GET("/api/v1/albums/{albumId}", {

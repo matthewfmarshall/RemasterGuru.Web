@@ -1,11 +1,11 @@
 import {
   catchNetworkFailure,
-  createDevApiClient,
   type CreditsBalanceDto,
 } from "@/src/lib/api";
+import { createServerAppApiClient } from "@/src/lib/api/server-client";
 
 async function loadCreditsBalance(): Promise<number | null> {
-  const client = createDevApiClient();
+  const client = await createServerAppApiClient();
   const network = await catchNetworkFailure(() =>
     client.GET("/api/v1/credits/balance"),
   );

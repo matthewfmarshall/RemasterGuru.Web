@@ -1,16 +1,16 @@
 import Link from "next/link";
 import {
   catchNetworkFailure,
-  createDevApiClient,
   type CreditsBalanceDto,
 } from "@/src/lib/api";
+import { createServerAppApiClient } from "@/src/lib/api/server-client";
 import { isAuth0Configured } from "@/src/lib/auth/config";
 import { auth0 } from "@/src/lib/auth0";
 
 async function loadCredits(): Promise<
   { ok: true; data: CreditsBalanceDto } | { ok: false; message: string }
 > {
-  const client = createDevApiClient();
+  const client = await createServerAppApiClient();
   const network = await catchNetworkFailure(() =>
     client.GET("/api/v1/credits/balance"),
   );

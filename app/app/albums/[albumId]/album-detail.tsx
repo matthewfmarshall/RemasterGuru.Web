@@ -5,10 +5,10 @@ import { Alert } from "@/src/components/ui";
 import { AlbumPhotoUpload } from "./album-photo-upload";
 import {
   catchNetworkFailure,
-  createDevApiClient,
   type AlbumDetailResponse,
   type AssetDto,
 } from "@/src/lib/api";
+import { createServerAppApiClient } from "@/src/lib/api/server-client";
 import { AlbumCheckoutCta } from "@/src/components/checkout/album-checkout-cta";
 import { AlbumTitleEditor } from "../album-title-editor";
 import { AlbumAssetsSection } from "./album-assets-section";
@@ -18,7 +18,7 @@ function formatStatus(status: string): string {
 }
 
 async function loadAlbum(albumId: string) {
-  const client = createDevApiClient();
+  const client = await createServerAppApiClient();
   const network = await catchNetworkFailure(() =>
     client.GET("/api/v1/albums/{albumId}", {
       params: { path: { albumId } },
@@ -46,7 +46,7 @@ async function loadAlbum(albumId: string) {
 }
 
 async function loadAssets(albumId: string) {
-  const client = createDevApiClient();
+  const client = await createServerAppApiClient();
   const network = await catchNetworkFailure(() =>
     client.GET("/api/v1/albums/{albumId}/assets", {
       params: { path: { albumId } },

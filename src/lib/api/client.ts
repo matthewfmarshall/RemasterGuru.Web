@@ -31,5 +31,5 @@ export function createDevApiClient(
   return createApiClient(getApiBaseUrl(), headers);
 }
 
-/** Same as {@link createDevApiClient}; name reflects Auth0 + dev fallback. */
+/** Browser / Client Components: same-origin BFF when Auth0 is on. */
 export const createAppApiClient = createDevApiClient;
