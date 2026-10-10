@@ -34,9 +34,18 @@ npm run generate:api   # after Api openapi changes
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_API_URL` | Base URL of the API (no trailing slash). Default `http://localhost:5055` — matches `RemasterGuru.Api` `launchSettings.json`. On macOS, avoid `5000` (often AirPlay). |
-| `NEXT_PUBLIC_DEV_USER_ID` | GUID sent as `X-User-Id` for local API calls |
+| `NEXT_PUBLIC_DEV_USER_ID` | GUID sent as `X-User-Id` for local API calls when Auth0 is **not** configured |
 
 Defaults in `.env.local.example`.
+
+### Auth0 (optional)
+
+Production-style auth uses a **new Auth0 dev tenant** (free), a Dashboard **API** + **Regular Web Application**, and env vars on both repos. Step-by-step (localhost + Hugging Face Space callback URLs):
+
+- **Canonical guide:** `RemasterGuru.Api` repo → `docs/auth0-setup.md` (local: `~/Development/RemasterGuru.Api/docs/auth0-setup.md`)
+- **Web-only pointer:** [docs/auth0-setup.md](docs/auth0-setup.md)
+
+When Auth0 env is complete, `/app/*` requires login (`/auth/login`) and API calls use the `/api/v1` BFF proxy with an access token. When Auth0 is omitted, behavior is unchanged (`createDevApiClient()` + `X-User-Id`).
 
 ## Run
 
@@ -69,7 +78,7 @@ If the API is not running, the app still loads: home health shows **unreachable*
 | `/app/checkout/success` | Stripe success return (`albumId` query) |
 | `/app/checkout/cancel` | Stripe cancel return (`albumId` query) |
 
-The `/app` layout shows navigation and live credits balance (`GET /api/v1/credits/balance`). All API calls send `X-User-Id` via `createDevApiClient()`.
+The `/app` layout shows navigation and live credits balance (`GET /api/v1/credits/balance`). API calls use `createDevApiClient()` (`X-User-Id` in dev, or same-origin `/api/v1` BFF when Auth0 is configured).
 
 **Album management:** On album detail you can edit the title, delete the album, remove all photos (keeps the album), or remove individual photos. Per-album “don’t ask again” for photo delete is stored in `localStorage` under `remaster-guru:skip-asset-delete-confirm:{albumId}`.
 
