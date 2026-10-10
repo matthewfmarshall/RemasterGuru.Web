@@ -29,8 +29,17 @@ const REMASTER_ITEMS: { preset: RemasterPreset; label: string }[] = [
   { preset: "fade", label: "Fix fade" },
 ];
 
-const MENU_ITEM_CLASS =
-  "block w-full px-3 py-2 text-left text-zinc-900 hover:bg-zinc-50 disabled:text-zinc-400 disabled:opacity-50";
+const MENU_PANEL_CLASS =
+  "absolute right-0 z-20 mt-1 min-w-[12rem] rounded-lg border border-zinc-200 bg-white py-1 text-sm text-zinc-900 shadow-lg scheme-light [&_button[role=menuitem]:not([aria-disabled=true])]:!text-zinc-900";
+
+const MENU_ITEM_BASE =
+  "block w-full px-3 py-2 text-left !text-zinc-900 hover:bg-zinc-50";
+
+const MENU_ITEM_DISABLED = "pointer-events-none !text-zinc-400 opacity-50";
+
+function menuItemClass(inactive: boolean) {
+  return inactive ? `${MENU_ITEM_BASE} ${MENU_ITEM_DISABLED}` : MENU_ITEM_BASE;
+}
 
 export function BookPageActionsMenu({
   albumId,
@@ -67,6 +76,9 @@ export function BookPageActionsMenu({
   }, [open]);
 
   const menuDisabled = disabled || remasterBusy;
+  const moveUpInactive = !canMoveUp || menuDisabled;
+  const moveDownInactive = !canMoveDown || menuDisabled;
+  const acceptInactive = menuDisabled || Boolean(asset.acceptedForPrint);
 
   return (
     <div ref={rootRef} className="relative">
@@ -83,16 +95,17 @@ export function BookPageActionsMenu({
         ⋮
       </Button>
       {open ? (
-        <div
-          role="menu"
-          className="absolute right-0 z-20 mt-1 min-w-[12rem] rounded-lg border border-zinc-200 bg-white py-1 text-sm text-zinc-900 shadow-lg"
-        >
+        <div role="menu" className={MENU_PANEL_CLASS}>
           <button
             type="button"
             role="menuitem"
-            className={MENU_ITEM_CLASS}
-            disabled={!canMoveUp || menuDisabled}
+            aria-disabled={moveUpInactive}
+            tabIndex={moveUpInactive ? -1 : undefined}
+            className={menuItemClass(moveUpInactive)}
             onClick={() => {
+              if (moveUpInactive) {
+                return;
+              }
               setOpen(false);
               onMoveUp();
             }}
@@ -102,9 +115,13 @@ export function BookPageActionsMenu({
           <button
             type="button"
             role="menuitem"
-            className={MENU_ITEM_CLASS}
-            disabled={!canMoveDown || menuDisabled}
+            aria-disabled={moveDownInactive}
+            tabIndex={moveDownInactive ? -1 : undefined}
+            className={menuItemClass(moveDownInactive)}
             onClick={() => {
+              if (moveDownInactive) {
+                return;
+              }
               setOpen(false);
               onMoveDown();
             }}
@@ -114,9 +131,13 @@ export function BookPageActionsMenu({
           <button
             type="button"
             role="menuitem"
-            className={MENU_ITEM_CLASS}
-            disabled={menuDisabled || asset.acceptedForPrint}
+            aria-disabled={acceptInactive}
+            tabIndex={acceptInactive ? -1 : undefined}
+            className={menuItemClass(acceptInactive)}
             onClick={() => {
+              if (acceptInactive) {
+                return;
+              }
               setOpen(false);
               onAcceptForPrint();
             }}
@@ -124,15 +145,19 @@ export function BookPageActionsMenu({
             Mark page ready for print
           </button>
           <div className="my-1 border-t border-zinc-100" />
-          <p className="px-3 py-1 text-xs font-medium text-zinc-500">Remaster</p>
+          <p className="px-3 py-1 text-xs font-medium text-zinc-700">Remaster</p>
           {REMASTER_ITEMS.map((item) => (
             <button
               key={item.preset}
               type="button"
               role="menuitem"
-              className={MENU_ITEM_CLASS}
-              disabled={menuDisabled}
+              aria-disabled={menuDisabled}
+              tabIndex={menuDisabled ? -1 : undefined}
+              className={menuItemClass(menuDisabled)}
               onClick={() => {
+                if (menuDisabled) {
+                  return;
+                }
                 setOpen(false);
                 void startRemaster(item.preset);
               }}
