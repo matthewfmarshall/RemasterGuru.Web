@@ -98,7 +98,7 @@ export function BeforeAfterCompare({
     setPosition(clamp(pct));
   }, []);
 
-  const onPointerDown = useCallback((e: PointerEvent<HTMLDivElement>) => {
+  const onPointerDown = useCallback((e: PointerEvent<HTMLElement>) => {
     if (e.button !== 0 && e.pointerType === "mouse") return;
     e.preventDefault();
     dragging.current = true;
@@ -106,12 +106,12 @@ export function BeforeAfterCompare({
     updateFromClientX(e.clientX);
   }, [updateFromClientX]);
 
-  const onPointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
+  const onPointerMove = useCallback((e: PointerEvent<HTMLElement>) => {
     if (!dragging.current) return;
     updateFromClientX(e.clientX);
   }, [updateFromClientX]);
 
-  const onPointerUp = useCallback((e: PointerEvent<HTMLDivElement>) => {
+  const onPointerUp = useCallback((e: PointerEvent<HTMLElement>) => {
     if (!dragging.current) return;
     dragging.current = false;
     if (trackRef.current?.hasPointerCapture(e.pointerId)) {
@@ -205,7 +205,7 @@ export function BeforeAfterCompare({
         >
           <button
             type="button"
-            className="pointer-events-auto absolute left-1/2 top-1/2 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border-2 border-amber-700/30 bg-white text-stone-700 shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700"
+            className="pointer-events-auto absolute left-1/2 top-1/2 flex h-11 min-h-11 w-11 min-w-11 touch-none -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center rounded-full border-2 border-amber-700/30 bg-white text-stone-700 shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700"
             aria-label="Drag to compare before and after"
             aria-valuemin={0}
             aria-valuemax={100}
@@ -213,7 +213,10 @@ export function BeforeAfterCompare({
             role="slider"
             aria-orientation="horizontal"
             onKeyDown={onKeyDown}
-            onPointerDown={(e) => e.stopPropagation()}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
           >
             <span className="text-xs font-bold" aria-hidden="true">
               ↔
