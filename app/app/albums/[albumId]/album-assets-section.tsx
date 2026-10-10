@@ -3,12 +3,18 @@
 import { useEffect, useState } from "react";
 import { Alert, Card } from "@/src/components/ui";
 import type { AssetDto } from "@/src/lib/api";
+import {
+  bookLimitSummaryLine,
+  getAlbumTemplatePageCount,
+} from "@/src/lib/albums/album-template-page-count";
+import { sortAssetsByBookOrder } from "@/src/lib/albums/sort-assets-by-book-order";
 import { AlbumDangerZone } from "../album-danger-zone";
 import { AlbumAssetCard } from "./album-asset-card";
 
 type AlbumAssetsSectionProps = {
   albumId: string;
   albumTitle: string;
+  templateId: string;
   initialAssets: AssetDto[];
   assetsLoadError?: string | null;
   fallbackPhotoCount?: number;
@@ -17,6 +23,7 @@ type AlbumAssetsSectionProps = {
 export function AlbumAssetsSection({
   albumId,
   albumTitle,
+  templateId,
   initialAssets,
   assetsLoadError = null,
   fallbackPhotoCount = 0,
@@ -34,11 +41,22 @@ export function AlbumAssetsSection({
 
   const photoCount =
     assetsLoadError ? fallbackPhotoCount : assets.length;
+  const pageCount = getAlbumTemplatePageCount(templateId);
+  const orderedAssets = sortAssetsByBookOrder(assets);
+  const limitSummary =
+    assetsLoadError || orderedAssets.length === 0
+      ? null
+      : bookLimitSummaryLine(orderedAssets.length, pageCount);
 
   return (
     <>
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-zinc-900">Photos</h2>
+        <div>
+          <h2 className="text-lg font-semibold text-zinc-900">Photos</h2>
+          {limitSummary ? (
+            <p className="mt-1 text-sm text-amber-800">{limitSummary}</p>
+          ) : null}
+        </div>
         {assetsLoadError ? (
           <Alert variant="error">{assetsLoadError}</Alert>
         ) : assets.length === 0 ? (
@@ -50,11 +68,12 @@ export function AlbumAssetsSection({
           </Card>
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {assets.map((asset) => (
+            {orderedAssets.map((asset, index) => (
               <li key={asset.id}>
                 <AlbumAssetCard
                   albumId={albumId}
                   asset={asset}
+                  pastBookLimit={index >= pageCount}
                   onDeleted={() => {
                     setAssets((prev) => prev.filter((a) => a.id !== asset.id));
                   }}

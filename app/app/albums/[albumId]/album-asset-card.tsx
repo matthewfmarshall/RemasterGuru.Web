@@ -5,16 +5,19 @@ import type { AssetDto } from "@/src/lib/api";
 import { AlbumAssetDelete } from "../album-asset-delete";
 import { AlbumAssetRemaster } from "./album-asset-remaster";
 import { AlbumAssetThumbnail } from "./album-asset-thumbnail";
+import { PastBookLimitBadge } from "@/src/components/albums/past-book-limit-badge";
 
 type AlbumAssetCardProps = {
   albumId: string;
   asset: AssetDto;
+  pastBookLimit?: boolean;
   onDeleted?: () => void;
 };
 
 export function AlbumAssetCard({
   albumId,
   asset,
+  pastBookLimit = false,
   onDeleted,
 }: AlbumAssetCardProps) {
   return (
@@ -24,6 +27,11 @@ export function AlbumAssetCard({
           asset={asset}
           alt={asset.caption ?? "Album photo"}
         />
+        {pastBookLimit ? (
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-2 pt-6">
+            <PastBookLimitBadge className="max-w-full text-[11px] leading-snug" />
+          </div>
+        ) : null}
       </div>
       <div className="space-y-1 p-4">
         {asset.caption ? (

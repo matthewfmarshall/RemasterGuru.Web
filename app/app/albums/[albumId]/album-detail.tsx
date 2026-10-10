@@ -124,6 +124,7 @@ export async function AlbumDetail({ albumId }: { albumId: string }) {
       <AlbumAssetsSection
         albumId={albumId}
         albumTitle={album.title}
+        templateId={album.templateId}
         initialAssets={assetsResult.ok ? assetsResult.assets : []}
         assetsLoadError={assetsResult.ok ? null : assetsResult.message}
         fallbackPhotoCount={albumResult.detail.pageSummary.assetCount}

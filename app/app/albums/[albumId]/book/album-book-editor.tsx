@@ -14,6 +14,8 @@ import { AlbumCheckoutCta } from "@/src/components/checkout/album-checkout-cta";
 import { BookPageActionsMenu } from "./book-page-actions-menu";
 import { BOOK_PAGE_ASPECT_CLASS } from "./book-page-aspect";
 import { assetBookImageUrl } from "@/src/lib/api/asset-book-image";
+import { bookLimitSummaryLine } from "@/src/lib/albums/album-template-page-count";
+import { PastBookLimitBadge } from "@/src/components/albums/past-book-limit-badge";
 
 type AlbumBookEditorProps = {
   albumId: string;
@@ -55,6 +57,10 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const pageCount = layout.pageCount;
+  const bookLimitSummary = useMemo(
+    () => bookLimitSummaryLine(assets.length, pageCount),
+    [assets.length, pageCount],
+  );
   const previewSlots = useMemo(() => {
     const slots: Array<AssetDto | null> = [];
     for (let i = 0; i < pageCount; i++) {
@@ -219,6 +225,9 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
           {album.title} · {layout.templateId} · {layout.slotsFilled} of{" "}
           {layout.pageCount} pages filled
         </p>
+        {bookLimitSummary ? (
+          <p className="mt-1 text-sm text-amber-800">{bookLimitSummary}</p>
+        ) : null}
         <p className="mt-1 text-sm capitalize text-zinc-500">
           Status: {album.status.replace(/_/g, " ")}
         </p>
@@ -245,6 +254,7 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                 {assets.map((asset, index) => {
                   const assetWarnings = warningsForAsset(printReadiness, asset.id);
                   const pageReady = isPagePrintReady(asset, printReadiness);
+                  const pastBookLimit = index >= pageCount;
                   return (
                     <li key={asset.id}>
                       <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start">
@@ -269,6 +279,9 @@ export function AlbumBookEditor({ albumId, initial }: AlbumBookEditorProps) {
                                 >
                                   ✓ Ready
                                 </span>
+                              ) : null}
+                              {pastBookLimit ? (
+                                <PastBookLimitBadge />
                               ) : null}
                             </div>
                             <BookPageActionsMenu
