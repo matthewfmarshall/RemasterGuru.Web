@@ -31,5 +31,18 @@ export function createDevApiClient(
   return createApiClient(getApiBaseUrl(), headers);
 }
 
-/** Browser / Client Components: same-origin BFF when Auth0 is on. */
-export const createAppApiClient = createDevApiClient;
+/** Client Components: same-origin BFF when `NEXT_PUBLIC_APP_BASE_URL` is set. */
+export function createAppApiClient(
+  extraHeaders?: Record<string, string>,
+): ApiClient {
+  const headers: Record<string, string> = { ...extraHeaders };
+  const usingBrowserBff =
+    typeof window !== "undefined"
+    && Boolean(process.env.NEXT_PUBLIC_APP_BASE_URL?.trim());
+
+  if (!usingBrowserBff && !isAuth0Configured()) {
+    headers["X-User-Id"] = getDevUserId();
+  }
+
+  return createApiClient(getApiBaseUrl(), headers);
+}

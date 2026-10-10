@@ -4,6 +4,11 @@ const DEFAULT_API_URL = "http://localhost:5055";
 const DEFAULT_DEV_USER_ID = "84AD0816-39F0-480F-93F9-2D370D27CA7C";
 
 export function getApiBaseUrl(): string {
+  const browserBff = process.env.NEXT_PUBLIC_APP_BASE_URL?.trim();
+  if (typeof window !== "undefined" && browserBff && browserBff.length > 0) {
+    return browserBff.replace(/\/$/, "");
+  }
+
   const fromEnv = process.env.NEXT_PUBLIC_API_URL?.trim();
   if (fromEnv && fromEnv.length > 0) {
     return fromEnv.replace(/\/$/, "");

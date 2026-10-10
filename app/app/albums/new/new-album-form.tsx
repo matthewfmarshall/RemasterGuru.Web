@@ -3,11 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Alert, Button, Card, Input } from "@/src/components/ui";
-import {
-  createDevApiClient,
-  getApiBaseUrl,
-  type AlbumDto,
-} from "@/src/lib/api";
+import { createAlbumAction } from "./create-album-action";
 import { markAlbumSaved } from "@/src/lib/pwa/storage";
 
 const DEFAULT_TEMPLATE = "hardcover-24";
@@ -30,50 +26,21 @@ export function NewAlbumForm() {
 
     setSubmitting(true);
     try {
-      const client = createDevApiClient();
-      const { data, error: apiError, response } = await client.POST(
-        "/api/v1/albums",
-        {
-          body: {
-            title: trimmed,
-            templateId: templateId.trim() || DEFAULT_TEMPLATE,
-          },
-        },
-      );
+      const result = await createAlbumAction({
+        title: trimmed,
+        templateId: templateId.trim() || DEFAULT_TEMPLATE,
+      });
 
-      const ok =
-        response.ok || response.status === 201 || response.status === 200;
-      if (apiError || !ok) {
-        const apiBase = getApiBaseUrl();
-        setError(
-          apiError
-            ? `Could not reach the API at ${apiBase}. Start RemasterGuru.Api (dotnet run) and confirm NEXT_PUBLIC_API_URL matches launchSettings (default ${apiBase}).`
-            : `Could not create album (HTTP ${response.status})`,
-        );
-        return;
-      }
-
-      let album = data as unknown as AlbumDto | undefined;
-      if (!album?.id) {
-        try {
-          album = (await response.clone().json()) as AlbumDto;
-        } catch {
-          /* fall through */
-        }
-      }
-
-      const id = album?.id;
-      if (!id) {
-        setError("Album was created but no id was returned.");
+      if (!result.ok) {
+        setError(result.error);
         return;
       }
 
       markAlbumSaved();
-      router.replace(`/app/albums/${id}`);
+      router.replace(`/app/albums/${result.albumId}`);
     } catch {
-      const apiBase = getApiBaseUrl();
       setError(
-        `Could not reach the API at ${apiBase}. Start RemasterGuru.Api (dotnet run) and use http://localhost:3000 (not 127.0.0.1) if the dev UI does not respond.`,
+        "Could not create album. Refresh and try again, or confirm RemasterGuru.Api is running.",
       );
     } finally {
       setSubmitting(false);
