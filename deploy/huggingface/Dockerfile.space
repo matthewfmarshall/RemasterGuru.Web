@@ -1,0 +1,78 @@
+# Hugging Face Space — copy to the Space repo root as `Dockerfile`.
+# Build context is the Space repo only (no sibling RemasterGuru.Api checkout).
+#
+# Pin commits via build args (HF: Settings → Variables, or docker build --build-arg):
+#   API_REF=6284424  WEB_REF=993f8a2
+#
+# Auth0 vars must be available during `npm run build` so Next.js can set
+# NEXT_PUBLIC_APP_BASE_URL (see next.config.ts). On HF, add them as Space secrets
+# before the first build; Hub injects secrets into the Docker build environment.
+
+ARG API_REPO=https://github.com/matthewfmarshall/RemasterGuru.Api.git
+ARG WEB_REPO=https://github.com/matthewfmarshall/RemasterGuru.Web.git
+ARG API_REF=main
+ARG WEB_REF=main
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS api-build
+ARG API_REPO
+ARG API_REF
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+RUN git clone --filter=blob:none "${API_REPO}" RemasterGuru.Api \
+    && cd RemasterGuru.Api \
+    && git fetch --depth 1 origin "${API_REF}" \
+    && git checkout FETCH_HEAD
+RUN dotnet publish ./RemasterGuru.Api/src/RemasterGuru.Api/RemasterGuru.Api.csproj \
+    -c Release \
+    -o /app/api \
+    --no-self-contained
+
+FROM node:20-bookworm AS web-build
+ARG WEB_REPO
+ARG WEB_REF
+ARG AUTH0_SECRET
+ARG AUTH0_DOMAIN
+ARG AUTH0_CLIENT_ID
+ARG AUTH0_CLIENT_SECRET
+ARG AUTH0_AUDIENCE
+ARG AUTH0_BASE_URL
+ARG APP_BASE_URL
+ENV AUTH0_SECRET="${AUTH0_SECRET}" \
+    AUTH0_DOMAIN="${AUTH0_DOMAIN}" \
+    AUTH0_CLIENT_ID="${AUTH0_CLIENT_ID}" \
+    AUTH0_CLIENT_SECRET="${AUTH0_CLIENT_SECRET}" \
+    AUTH0_AUDIENCE="${AUTH0_AUDIENCE}" \
+    AUTH0_BASE_URL="${AUTH0_BASE_URL}" \
+    APP_BASE_URL="${APP_BASE_URL}" \
+    NEXT_STANDALONE_OUTPUT=1
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+RUN git clone --depth 1 --branch "${WEB_REF}" "${WEB_REPO}" RemasterGuru.Web
+WORKDIR /src/RemasterGuru.Web
+RUN npm ci && npm run build
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble AS final
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=api-build /app/api ./api
+COPY --from=web-build /src/RemasterGuru.Web/.next/standalone ./web
+COPY --from=web-build /src/RemasterGuru.Web/.next/static ./web/.next/static
+COPY --from=web-build /src/RemasterGuru.Web/public ./web/public
+COPY --from=web-build /src/RemasterGuru.Web/deploy/huggingface/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENV PORT=7860
+EXPOSE 7860
+
+VOLUME ["/data"]
+
+ENTRYPOINT ["/entrypoint.sh"]
