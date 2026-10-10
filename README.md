@@ -47,6 +47,10 @@ Production-style auth uses a **new Auth0 dev tenant** (free), a Dashboard **API*
 
 When Auth0 env is complete, `/app/*` requires login (`/auth/login`) and API calls use the `/api/v1` BFF proxy with an access token. When Auth0 is omitted, behavior is unchanged (`createDevApiClient()` + `X-User-Id`).
 
+### Hugging Face staging (Docker)
+
+See [deploy/huggingface/README.md](deploy/huggingface/README.md) for the single-container Space image (API + Next, port 7860).
+
 ## Run
 
 Start **RemasterGuru.Api** first (see that repo’s README), then:

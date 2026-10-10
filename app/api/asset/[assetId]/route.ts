@@ -1,4 +1,4 @@
-import { getApiBaseUrl, getDevUserId } from "@/src/lib/api/config";
+import { getUpstreamApiBaseUrl, getUpstreamApiHeaders } from "@/src/lib/api/upstream";
 
 /**
  * Dev proxy: forwards asset original bytes with server-side X-User-Id (img tags cannot send headers).
@@ -9,11 +9,9 @@ export async function GET(
 ) {
   const { assetId } = await context.params;
   const upstream = await fetch(
-    `${getApiBaseUrl()}/api/v1/assets/${assetId}/original`,
+    `${getUpstreamApiBaseUrl()}/api/v1/assets/${assetId}/original`,
     {
-      headers: {
-        "X-User-Id": getDevUserId(),
-      },
+      headers: await getUpstreamApiHeaders(),
       cache: "no-store",
     },
   );

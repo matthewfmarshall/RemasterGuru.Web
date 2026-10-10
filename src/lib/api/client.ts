@@ -1,4 +1,5 @@
 import createClient from "openapi-fetch";
+import { isAuth0Configured } from "@/src/lib/auth/config";
 import { getApiBaseUrl, getDevUserId } from "./config";
 import type { paths } from "./schema";
 
@@ -22,8 +23,13 @@ export function createApiClient(
 export function createDevApiClient(
   extraHeaders?: Record<string, string>,
 ): ApiClient {
-  return createApiClient(getApiBaseUrl(), {
-    "X-User-Id": getDevUserId(),
-    ...extraHeaders,
-  });
+  const headers: Record<string, string> = { ...extraHeaders };
+  if (!isAuth0Configured()) {
+    headers["X-User-Id"] = getDevUserId();
+  }
+
+  return createApiClient(getApiBaseUrl(), headers);
 }
+
+/** Same as {@link createDevApiClient}; name reflects Auth0 + dev fallback. */
+export const createAppApiClient = createDevApiClient;

@@ -1,8 +1,21 @@
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AppHeader } from "@/src/components/app-header";
 import { InstallPrompt } from "@/src/components/pwa/install-prompt";
+import { isAuth0Configured } from "@/src/lib/auth/config";
+import { auth0 } from "@/src/lib/auth0";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  if (isAuth0Configured()) {
+    const session = await auth0.getSession();
+    if (!session) {
+      redirect("/auth/login?returnTo=/app/albums");
+    }
+  }
   return (
     <div className="min-h-screen bg-zinc-50">
       <Suspense

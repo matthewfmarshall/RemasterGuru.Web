@@ -4,6 +4,8 @@ import {
   createDevApiClient,
   type CreditsBalanceDto,
 } from "@/src/lib/api";
+import { isAuth0Configured } from "@/src/lib/auth/config";
+import { auth0 } from "@/src/lib/auth0";
 
 async function loadCredits(): Promise<
   { ok: true; data: CreditsBalanceDto } | { ok: false; message: string }
@@ -29,6 +31,8 @@ async function loadCredits(): Promise<
 
 export async function AppHeader() {
   const credits = await loadCredits();
+  const authEnabled = isAuth0Configured();
+  const session = authEnabled ? await auth0.getSession() : null;
 
   return (
     <header className="border-b border-zinc-200 bg-white">
@@ -49,7 +53,7 @@ export async function AppHeader() {
             </Link>
           </nav>
         </div>
-        <div className="text-sm text-zinc-600">
+        <div className="flex items-center gap-4 text-sm text-zinc-600">
           {credits.ok ? (
             <span>
               Credits:{" "}
@@ -62,6 +66,23 @@ export async function AppHeader() {
               Credits: —
             </span>
           )}
+          {authEnabled ? (
+            session ? (
+              <a
+                href="/auth/logout"
+                className="font-medium text-zinc-700 hover:text-zinc-900"
+              >
+                Log out
+              </a>
+            ) : (
+              <a
+                href="/auth/login?returnTo=/app/albums"
+                className="font-medium text-zinc-700 hover:text-zinc-900"
+              >
+                Log in
+              </a>
+            )
+          ) : null}
         </div>
       </div>
     </header>
