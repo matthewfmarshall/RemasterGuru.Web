@@ -29,6 +29,9 @@ const REMASTER_ITEMS: { preset: RemasterPreset; label: string }[] = [
   { preset: "fade", label: "Fix fade" },
 ];
 
+const MENU_ITEM_CLASS =
+  "block w-full px-3 py-2 text-left text-zinc-900 hover:bg-zinc-50 disabled:text-zinc-400 disabled:opacity-50";
+
 export function BookPageActionsMenu({
   albumId,
   asset,
@@ -82,12 +85,12 @@ export function BookPageActionsMenu({
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-20 mt-1 min-w-[12rem] rounded-lg border border-zinc-200 bg-white py-1 text-sm shadow-lg"
+          className="absolute right-0 z-20 mt-1 min-w-[12rem] rounded-lg border border-zinc-200 bg-white py-1 text-sm text-zinc-900 shadow-lg"
         >
           <button
             type="button"
             role="menuitem"
-            className="block w-full px-3 py-2 text-left hover:bg-zinc-50 disabled:opacity-50"
+            className={MENU_ITEM_CLASS}
             disabled={!canMoveUp || menuDisabled}
             onClick={() => {
               setOpen(false);
@@ -99,7 +102,7 @@ export function BookPageActionsMenu({
           <button
             type="button"
             role="menuitem"
-            className="block w-full px-3 py-2 text-left hover:bg-zinc-50 disabled:opacity-50"
+            className={MENU_ITEM_CLASS}
             disabled={!canMoveDown || menuDisabled}
             onClick={() => {
               setOpen(false);
@@ -111,7 +114,7 @@ export function BookPageActionsMenu({
           <button
             type="button"
             role="menuitem"
-            className="block w-full px-3 py-2 text-left hover:bg-zinc-50 disabled:opacity-50"
+            className={MENU_ITEM_CLASS}
             disabled={menuDisabled || asset.acceptedForPrint}
             onClick={() => {
               setOpen(false);
@@ -127,7 +130,7 @@ export function BookPageActionsMenu({
               key={item.preset}
               type="button"
               role="menuitem"
-              className="block w-full px-3 py-2 text-left hover:bg-zinc-50 disabled:opacity-50"
+              className={MENU_ITEM_CLASS}
               disabled={menuDisabled}
               onClick={() => {
                 setOpen(false);
